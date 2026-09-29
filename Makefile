@@ -2,6 +2,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra -std=c2x -g -fsanitize=address -Wno-implicit-fallthrough -Wno-unused-function -Wno-implicit-function-declaration
 
 TARGET = compiler
+CDIR = $(shell pwd)
 
 SRCS = $(wildcard *.c)
 OBJS = $(SRCS:.c=.o)
@@ -20,8 +21,10 @@ $(TARGET): $(OBJS)
 make_then_run: $(TARGET) run
 
 run:
-	qemu-riscv64-static ./$(TARGET) # should not be used for grading purposes
+	./$(TARGET)
 clean:
 	rm -f $(OBJS) $(TARGET)
-
-.PHONY: all make_then_run clean run
+	cd tests/scanner && find . -type f -name "*.out" -delete
+test_scanner:
+	cd tests/scanner && ./run_all_tests.sh $(CDIR)/$(TARGET)
+.PHONY: all make_then_run clean run test_scanner
