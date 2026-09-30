@@ -1,3 +1,4 @@
 *.o
 compiler
 *.out
+.DS_Store
