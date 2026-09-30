@@ -27,8 +27,6 @@ function                               { return TOKEN_FUNCTION; }
 true                                  { return TOKEN_TRUE; }
 false                                 { return TOKEN_FALSE; }
 {LETTER}+({DIGIT}|{LETTER}|_)*       { return TOKEN_IDENT; }
-"                                    { return TOKEN_QUOTE; }
-'                                    { return TOKEN_APOSTROPHE; }
 :                                    { return TOKEN_COLON; }
 ;                                    { return TOKEN_SEMICOLON; }
 =                                    { return TOKEN_ASSIGN; }
