@@ -1,0 +1,11 @@
+// longest match: multi-character operators must win over single ones
+a<=b
+a>=b
+c=='a'
+c!='a'
+i++
+i--
+x---y
+a+++b
+x=-1
+a&&b||c

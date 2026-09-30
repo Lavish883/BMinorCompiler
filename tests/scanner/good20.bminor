@@ -1,0 +1,19 @@
+// every escape code in char and string literals
+'\a'
+'\b'
+'\e'
+'\f'
+'\n'
+'\r'
+'\t'
+'\v'
+'\\'
+'\''
+'\"'
+'\0x41'
+'\0x7f'
+// any other character after a backslash is that character
+'\q'
+"\a\b\e\f\n\r\t\v"
+"quote \" backslash \\ single \'"
+"hex \0x41\0x42\0x43"

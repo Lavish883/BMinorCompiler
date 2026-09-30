@@ -1,0 +1,14 @@
+/* comment corner cases */
+/* a comment
+   that spans
+   several lines */
+/**/
+/***/
+/* stars ** inside * the comment **/
+/* a // inside a C comment */
+// a /* inside a C++ comment
+// quotes in a comment: 'a' "b" '
+a/**/b
+x = 1; /* after code */ y = 2;
+z = 3; // at the end of a line
+/* the last comment has no newline after it */

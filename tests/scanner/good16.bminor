@@ -1,0 +1,11 @@
+// B-Minor 2025 keywords not covered by good1
+auto
+carray
+float
+double
+// identifiers that start with a keyword are still one identifier
+printarray
+integers
+iff
+forx
+auto_

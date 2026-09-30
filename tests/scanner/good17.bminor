@@ -1,0 +1,16 @@
+// integer literals: decimal, hexadecimal (0x) and binary (0b)
+// hex digits may be upper or lower case, but the x and b must be lower case (Q1.4, Q1.5)
+123
+0x104A3F
+0xabcdef
+0xAbCd09
+0x0
+0x0001
+0b0101110101
+0b0
+0b1
+number: integer = 0xFF;
+mask: integer = 0b1010;
+// a leading sign is a separate token (Q1.3)
+-0x10
++0b11

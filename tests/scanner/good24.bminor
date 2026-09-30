@@ -1,0 +1,3 @@
+// windows line endings: carriage return is whitespace
+x: integer = 5;
+y = x + 1;
