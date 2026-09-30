@@ -1,0 +1,2 @@
+// the escaped quote does not close the string, so it is unterminated
+"abc\"

@@ -1,0 +1,2 @@
+// strings may only contain ASCII 32-127; a tab must be written as \t
+"tab	here"
