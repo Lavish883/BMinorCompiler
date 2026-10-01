@@ -1,9 +1,68 @@
-typedef enum
-{
+typedef enum {
     TOKEN_EOF = 0,
-    TOKEN_WHILE,
-    TOKEN_ADD,
+
+    /* Identifiers */
     TOKEN_IDENT,
-    TOKEN_NUMBER,
+
+    /* Keywords */
+    TOKEN_ARRAY,
+    TOKEN_AUTO,
+    TOKEN_BOOLEAN_TYPE,
+    TOKEN_CARRAY,
+    TOKEN_CHAR_TYPE,
+    TOKEN_DOUBLE_TYPE,
+    TOKEN_ELSE,
+    TOKEN_FALSE,
+    TOKEN_FLOAT_TYPE,
+    TOKEN_FOR,
+    TOKEN_FUNCTION,
+    TOKEN_IF,
+    TOKEN_INTEGER_TYPE,     // integer
+    TOKEN_PRINT,
+    TOKEN_RETURN,
+    TOKEN_STRING_TYPE,
+    TOKEN_TRUE,
+    TOKEN_VOID,
+    TOKEN_WHILE,
+
+    /* Literals */
+    TOKEN_INTEGER_LITERAL,
+    TOKEN_DOUBLE_LITERAL,
+    TOKEN_CHAR_LITERAL,
+    TOKEN_STRING_LITERAL,
+
+    /* Expressions */
+    TOKEN_LPAREN,
+    TOKEN_RPAREN,
+    TOKEN_L_SQ_BRACKET,
+    TOKEN_R_SQ_BRACKET,
+    TOKEN_INCREMENT,
+    TOKEN_DECREMENT,
+    TOKEN_HASH,
+    TOKEN_MINUS,            // - negation, subtraction
+    TOKEN_NOT,
+    TOKEN_EXPONENT,
+    TOKEN_MUL,
+    TOKEN_DIV,
+    TOKEN_MODULO,
+    TOKEN_PLUS,
+    TOKEN_LESS,
+    TOKEN_LESS_EQUAL,
+    TOKEN_GREATER,
+    TOKEN_GREATER_EQUAL,
+    TOKEN_EQUAL,
+    TOKEN_NOT_EQUAL,
+    TOKEN_AND,
+    TOKEN_OR,
+    TOKEN_ASSIGN,
+
+    /* Punctuation */
+    TOKEN_COLON,
+    TOKEN_SEMI,
+    TOKEN_COMMA,
+    TOKEN_LBRACE,
+    TOKEN_RBRACE,
+
+    /* Errors */
     TOKEN_ERROR
 } token_t;

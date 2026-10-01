@@ -1,0 +1,9 @@
+// the # (array length) and ! (logical not) operators
+l: integer = # a;
+l = #a;
+for( i=0; i<=#a; i++ ) {
+        print a[i];
+}
+b = !c;
+b = !(x < y);
+b = !!c;

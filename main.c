@@ -8,6 +8,7 @@
 extern FILE* yyin;
 extern int yylex();
 extern char* yytext;
+extern int yylineno;
 
 int main(int argc, char* argv[]) {
 	// Get all the flags for the program
@@ -39,11 +40,19 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
+	bool had_error = false;
 	while (1) {
 		token_t t = yylex();
 		if (t == TOKEN_EOF) break;
+		if (t == TOKEN_ERROR) {
+			printf("[ERROR] Unrecognized token: %s, Line Number: %d\n", yytext, yylineno);
+			had_error = true;
+			continue;
+		}
 		if (scan_info_flag) {
-			printf("token: %d text: %s\n", t, yytext);
+			printf("Token: %d, Text: %s, Line Number: %d\n", t, yytext, yylineno);
 		}
 	}
+
+	return had_error ? 1 : 0;
 }
