@@ -6,8 +6,7 @@ LETTER [a-zA-Z]
 ASCII_CHAR [\x00-\x7F]
 %%
 (" "|\t|\n) /* skip whitespace */
-/* Keywords */
-
+    /* Keywords */
 array                                   { return TOKEN_ARRAY; }
 auto                                   { return TOKEN_AUTO; }
 boolean                              { return TOKEN_BOOLEAN_TYPE; }
@@ -27,21 +26,23 @@ integer                              { return TOKEN_INTEGER_TYPE; }
 string                               { return TOKEN_STRING_TYPE; }
 function                               { return TOKEN_FUNCTION; }
 true                                  { return TOKEN_TRUE; }
+
 {LETTER}+({DIGIT}|{LETTER}|_)*       { return TOKEN_IDENT; }
+
 \'{ASCII_CHAR}\'                       { return TOKEN_CHAR; }
 \"{ASCII_CHAR}*\"                       { return TOKEN_STRING; }
 
-/* Punctuation */
+    /* Punctuation */
 :                                    { return TOKEN_COLON; }
 ;                                    { return TOKEN_SEMICOLON; }
 =                                    { return TOKEN_ASSIGN; }
 {                                    { return TOKEN_LBRACE; }
 }                                    { return TOKEN_RBRACE; }
-[                                    { return TOKEN_LSQBRACE; }
-]                                    { return TOKEN_RSQBRACE; }
+\[                                    { return TOKEN_L_SQ_BRACKET; }
+\]                                    { return TOKEN_R_SQ_BRACKET; }
 
 \+                                   { return TOKEN_PLUS; }
-\-                                   { return TOKEN_PLUS; }
+\-                                   { return TOKEN_MINUS; }
 
 (0x)+([0-9]|[a-f]|[A-F])*              { return TOKEN_HEXADECIMAL; }
 (0b)+(0|1)*                             { return TOKEN_BINARY; }
