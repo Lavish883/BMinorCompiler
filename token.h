@@ -15,7 +15,7 @@ typedef enum {
     TOKEN_FOR,
     TOKEN_FUNCTION,
     TOKEN_IF,
-    TOKEN_INTEGER_TYPE,     // integer
+    TOKEN_INTEGER_TYPE, // integer
     TOKEN_PRINT,
     TOKEN_RETURN,
     TOKEN_STRING_TYPE,
@@ -27,8 +27,9 @@ typedef enum {
     TOKEN_IDENT,
 
     /* Literals */
-    TOKEN_INTEGER_LITERAL,
-    TOKEN_DOUBLE_LITERAL,
+    TOKEN_HEXADECIMAL,
+    TOKEN_BINARY,
+    TOKEN_DECIMAL,
     TOKEN_CHAR_LITERAL,
     TOKEN_STRING_LITERAL,
 
@@ -37,7 +38,7 @@ typedef enum {
     TOKEN_INCREMENT,
     TOKEN_DECREMENT,
     TOKEN_HASH,
-    TOKEN_MINUS,            // - negation, subtraction
+    TOKEN_MINUS, // - negation, subtraction
     TOKEN_NOT,
     TOKEN_EXPONENT,
     TOKEN_MUL,
@@ -55,12 +56,12 @@ typedef enum {
     TOKEN_ASSIGN,
 
     /* Punctuation */
-    TOKEN_LPAREN, 
-    TOKEN_RPAREN, 
-    TOKEN_L_SQ_BRACKET, 
+    TOKEN_LPAREN,
+    TOKEN_RPAREN,
+    TOKEN_L_SQ_BRACKET,
     TOKEN_R_SQ_BRACKET,
     TOKEN_COLON,
-    TOKEN_SEMI,
+    TOKEN_SEMICOLON,
     TOKEN_COMMA,
     TOKEN_LBRACE,
     TOKEN_RBRACE,
