@@ -2,3 +2,6 @@
 compiler
 *.out
 .DS_Store
+*.outlex.yy.c
+lex.yy.c
+/lex.yy.c
