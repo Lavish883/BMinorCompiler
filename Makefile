@@ -23,8 +23,8 @@ make_then_run: $(TARGET) run
 run:
 	./$(TARGET)
 clean:
-	rm -f $(OBJS) $(TARGET)
-	rm *.yy.*
+	rm -f $(OBJS) $(TARGET) || true
+	rm *.yy.* || true
 	cd tests/scanner && find . -type f -name "*.out" -delete
 test_scanner:
 	cd tests/scanner && ./run_all_tests.sh $(CDIR)/$(TARGET) true

@@ -68,8 +68,8 @@ true                                 { return TOKEN_TRUE; }
 (0x)+([0-9]|[a-f]|[A-F])*            { return TOKEN_INTEGER_LITERAL; }
 (0b)+(0|1)*                          { return TOKEN_INTEGER_LITERAL; }
 {DIGIT}+((\.){DIGIT}+)?(e|E)(\+|\-)?{DIGIT}+      { return TOKEN_DOUBLE_LITERAL; }
-{DIGIT}*(\.({DIGIT})+)?          { return TOKEN_DOUBLE_LITERAL; }
 {DIGIT}+                        { return TOKEN_INTEGER_LITERAL; }
+{DIGIT}*(\.({DIGIT})+)?          { return TOKEN_DOUBLE_LITERAL; }
 
 
 "//".*                               { /* Single line comment */}
