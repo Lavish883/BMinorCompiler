@@ -39,6 +39,7 @@ int main(int argc, char* argv[]) {
 		printf("Could not open file named: %s!\n", file_name);
 		return 1;
 	}
+	printf("======[STARTING TESTS AT %s]======\n\n", file_name);
 
 	bool had_error = false;
 	while (1) {
@@ -53,6 +54,6 @@ int main(int argc, char* argv[]) {
 			printf("Token: %d, Text: %s, Line Number: %d\n", t, yytext, yylineno);
 		}
 	}
-
+	printf("\n======[FINISHED TESTS AT %s]======\n", file_name);
 	return had_error ? 1 : 0;
 }
