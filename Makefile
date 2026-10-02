@@ -1,5 +1,5 @@
 CC     = gcc
-CFLAGS = -Wall -Wextra -std=c2x -g -fsanitize=address -Wno-implicit-fallthrough -Wno-unused-function -Wno-implicit-function-declaration
+CFLAGS = -Wall -Wextra -g -fsanitize=address -Wno-implicit-fallthrough -Wno-unused-function -Wno-implicit-function-declaration
 
 OBJS   = main.o lex.yy.o hash_table.o library.o
 
