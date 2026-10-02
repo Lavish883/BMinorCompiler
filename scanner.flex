@@ -1,12 +1,18 @@
 %{
 #include "token.h"
 %}
+
 %option yylineno
+
 DIGIT [0-9]
 LETTER [a-zA-Z]
-ASCII_CHAR [\x00-\x7F]
+CHAR    \'((\\0x[0-9a-fA-F][0-9a-fA-F])|(\\?.))?\'
+STRING  \"(([^\\]\\\")|[^\"])*\"
+COMMENT (\/\*((\*[^/]?)|[^*])*(\*\/))|(\/\/.*)
+
 %%
-(" "|\t|\n) /* skip whitespace */
+(" "|\t|\v|\r|\n|\f) /* skip whitespace */
+
     /* Keywords */
 array                                { return TOKEN_ARRAY; }
 auto                                 { return TOKEN_AUTO; }
@@ -28,22 +34,37 @@ string                               { return TOKEN_STRING_TYPE; }
 function                             { return TOKEN_FUNCTION; }
 true                                 { return TOKEN_TRUE; }
 
-{LETTER}+({DIGIT}|{LETTER}|_)*       { return TOKEN_IDENT; }
+({LETTER}|_)+({DIGIT}|{LETTER}|_)*   { return TOKEN_IDENT; }
 
-\'{ASCII_CHAR}\'                     { return TOKEN_CHAR_LITERAL; }
-\"{ASCII_CHAR}*\"                    { return TOKEN_STRING_LITERAL; }
+{CHAR}                               { return TOKEN_CHAR_LITERAL; }
+{STRING}                             { return TOKEN_STRING_LITERAL; }
 
     /* Punctuation */
-:                                    { return TOKEN_COLON; }
-;                                    { return TOKEN_SEMICOLON; }
-=                                    { return TOKEN_ASSIGN; }
-{                                    { return TOKEN_LBRACE; }
-}                                    { return TOKEN_RBRACE; }
+\:                                   { return TOKEN_COLON; }
+\;                                   { return TOKEN_SEMICOLON; }
+\,                                   { return TOKEN_COMMA; }
+\=                                   { return TOKEN_ASSIGN; }
+\{                                   { return TOKEN_LBRACE; }
+\}                                   { return TOKEN_RBRACE; }
 \[                                   { return TOKEN_L_SQ_BRACKET; }
 \]                                   { return TOKEN_R_SQ_BRACKET; }
+\(                                   { return TOKEN_LPAREN; }
+\)                                   { return TOKEN_RPAREN; }
+\<                                   { return TOKEN_LESS; }
+\>                                   { return TOKEN_GREATER; }
+\^                                   { return TOKEN_EXPONENT; }
+\!                                   { return TOKEN_NOT; }
+\%                                   { return TOKEN_MODULO; }
+\#                                   { return TOKEN_HASH; }
+"&&"                                 { return TOKEN_AND; }
+"||"                                 { return TOKEN_OR; }
 
 \+                                   { return TOKEN_PLUS; }
 \-                                   { return TOKEN_MINUS; }
+\*                                   { return TOKEN_MUL; }
+\/                                   { return TOKEN_DIV; }
+
+{COMMENT}
 
 (0x)+([0-9]|[a-f]|[A-F])*            { return TOKEN_HEXADECIMAL; }
 (0b)+(0|1)*                          { return TOKEN_BINARY; }
