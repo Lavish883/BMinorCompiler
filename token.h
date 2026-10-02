@@ -7,8 +7,10 @@ typedef enum {
     TOKEN_AUTO,
     TOKEN_BOOLEAN_TYPE,
     TOKEN_CHAR_TYPE,
+    TOKEN_DOUBLE_TYPE,
     TOKEN_ELSE,
     TOKEN_FALSE,
+    TOKEN_FLOAT_TYPE,
     TOKEN_FOR,
     TOKEN_FUNCTION,
     TOKEN_IF,
@@ -23,6 +25,8 @@ typedef enum {
     /* Literals */
     TOKEN_CHAR_LITERAL,
     TOKEN_STRING_LITERAL,
+    TOKEN_INTEGER_LITERAL,
+    TOKEN_DOUBLE_LITERAL,
 
     /* Operators */
     TOKEN_PLUS,
@@ -49,9 +53,6 @@ typedef enum {
     TOKEN_OR,
     TOKEN_ASSIGN,
 
-    /* Literals (continued) */
-    TOKEN_DECIMAL,
-
     /* Punctuation */
     TOKEN_COLON,
     TOKEN_SEMICOLON,
@@ -65,12 +66,6 @@ typedef enum {
 
     /* Remaining Keywords */
     TOKEN_CARRAY,
-    TOKEN_DOUBLE_TYPE,
-    TOKEN_FLOAT_TYPE,
-
-    /* Remaining Literals */
-    TOKEN_HEXADECIMAL,
-    TOKEN_BINARY,
 
     /* Remaining Operators */
     TOKEN_HASH,
