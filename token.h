@@ -1,8 +1,6 @@
 typedef enum {
     TOKEN_EOF = 0,
 
-    /* Identifiers */
-    TOKEN_IDENT,
 
     /* Keywords */
     TOKEN_ARRAY,
@@ -25,17 +23,17 @@ typedef enum {
     TOKEN_VOID,
     TOKEN_WHILE,
 
+    /* Identifiers */
+    TOKEN_IDENT,
+
     /* Literals */
     TOKEN_INTEGER_LITERAL,
     TOKEN_DOUBLE_LITERAL,
     TOKEN_CHAR_LITERAL,
     TOKEN_STRING_LITERAL,
 
-    /* Expressions */
-    TOKEN_LPAREN,
-    TOKEN_RPAREN,
-    TOKEN_L_SQ_BRACKET,
-    TOKEN_R_SQ_BRACKET,
+    /* Operators */
+
     TOKEN_INCREMENT,
     TOKEN_DECREMENT,
     TOKEN_HASH,
@@ -57,6 +55,10 @@ typedef enum {
     TOKEN_ASSIGN,
 
     /* Punctuation */
+    TOKEN_LPAREN, 
+    TOKEN_RPAREN, 
+    TOKEN_L_SQ_BRACKET, 
+    TOKEN_R_SQ_BRACKET,
     TOKEN_COLON,
     TOKEN_SEMI,
     TOKEN_COMMA,
