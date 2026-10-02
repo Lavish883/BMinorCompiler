@@ -1,6 +1,9 @@
 %option   yylineno
 %{
 #include "token.h"
+int get_string_token();
+int is_valid_multiline_comment();
+int get_ident_token();
 %}
 DIGIT [0-9]
 LETTER [a-zA-Z]
@@ -74,7 +77,6 @@ true                                 { return TOKEN_TRUE; }
 .                                    { return TOKEN_ERROR; }
 %%
 int yywrap() { return 1; }
-void fatal_error(char* str) {printf("%s\n", str);}
 int is_valid_multiline_comment() {
     // Here means we found a multiline comment
     int prev_char = 0;
