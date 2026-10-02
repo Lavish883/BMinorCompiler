@@ -26,6 +26,5 @@ clean:
 	rm -f $(OBJS) $(TARGET)
 	cd tests/scanner && find . -type f -name "*.out" -delete
 test_scanner:
-	$(MAKE)
 	cd tests/scanner && ./run_all_tests.sh $(CDIR)/$(TARGET) true
 .PHONY: all make_then_run clean run test_scanner
