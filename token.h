@@ -1,75 +1,61 @@
-typedef enum {
-    TOKEN_EOF = 0,
+#define TOKS(x, s, ls)  \
+    x(EOF) s \
+    x(ARRAY) s \
+    x(AUTO) s \
+    x(BOOLEAN_TYPE) s \
+    x(CHAR_TYPE) s \
+    x(DOUBLE_TYPE) s \
+    x(ELSE) s \
+    x(FALSE) s \
+    x(FLOAT_TYPE) s \
+    x(FOR) s \
+    x(FUNCTION) s \
+    x(IF) s \
+    x(INTEGER_TYPE) s \
+    x(PRINT) s \
+    x(RETURN) s \
+    x(STRING_TYPE) s \
+    x(TRUE) s \
+    x(VOID) s \
+    x(WHILE) s \
+    x(CHAR_LITERAL) s \
+    x(STRING_LITERAL) s \
+    x(INTEGER_LITERAL) s \
+    x(DOUBLE_LITERAL) s \
+    x(PLUS) s \
+    x(MINUS) s \
+    x(NOT) s \
+    x(INCREMENT) s \
+    x(DECREMENT) s \
+    x(IDENT) s \
+    x(EXPONENT) s \
+    x(MUL) s \
+    x(DIV) s \
+    x(MODULO) s \
+    x(LESS) s \
+    x(LESS_EQUAL) s \
+    x(GREATER) s \
+    x(GREATER_EQUAL) s \
+    x(EQUAL) s \
+    x(NOT_EQUAL) s \
+    x(AND) s \
+    x(OR) s \
+    x(ASSIGN) s \
+    x(COLON) s \
+    x(SEMICOLON) s \
+    x(COMMA) s \
+    x(LPAREN) s \
+    x(RPAREN) s \
+    x(L_SQ_BRACKET) s \
+    x(R_SQ_BRACKET) s \
+    x(LBRACE) s \
+    x(RBRACE) s \
+    x(CARRAY) s \
+    x(HASH) s \
+    x(ERROR) ls
 
-    
-    /* Keywords */
-    TOKEN_ARRAY,
-    TOKEN_AUTO,
-    TOKEN_BOOLEAN_TYPE,
-    TOKEN_CHAR_TYPE,
-    TOKEN_DOUBLE_TYPE,
-    TOKEN_ELSE,
-    TOKEN_FALSE,
-    TOKEN_FLOAT_TYPE,
-    TOKEN_FOR,
-    TOKEN_FUNCTION,
-    TOKEN_IF,
-    TOKEN_INTEGER_TYPE,
-    TOKEN_PRINT,
-    TOKEN_RETURN,
-    TOKEN_STRING_TYPE,
-    TOKEN_TRUE,
-    TOKEN_VOID,
-    TOKEN_WHILE,
-
-    /* Literals */
-    TOKEN_CHAR_LITERAL,
-    TOKEN_STRING_LITERAL,
-    TOKEN_INTEGER_LITERAL,
-    TOKEN_DOUBLE_LITERAL,
-
-    /* Operators */
-    TOKEN_PLUS,
-    TOKEN_MINUS,
-    TOKEN_NOT,
-    TOKEN_INCREMENT,
-    TOKEN_DECREMENT,
-
-    /* Identifiers */
-    TOKEN_IDENT,
-
-    /* Operators (continued) */
-    TOKEN_EXPONENT,
-    TOKEN_MUL,
-    TOKEN_DIV,
-    TOKEN_MODULO,
-    TOKEN_LESS,
-    TOKEN_LESS_EQUAL,
-    TOKEN_GREATER,
-    TOKEN_GREATER_EQUAL,
-    TOKEN_EQUAL,
-    TOKEN_NOT_EQUAL,
-    TOKEN_AND,
-    TOKEN_OR,
-    TOKEN_ASSIGN,
-
-    /* Punctuation */
-    TOKEN_COLON,
-    TOKEN_SEMICOLON,
-    TOKEN_COMMA,
-    TOKEN_LPAREN,
-    TOKEN_RPAREN,
-    TOKEN_L_SQ_BRACKET,
-    TOKEN_R_SQ_BRACKET,
-    TOKEN_LBRACE,
-    TOKEN_RBRACE,
-
-    /* Remaining Keywords */
-    TOKEN_CARRAY,
-
-    /* Remaining Operators */
-    TOKEN_HASH,
-
-    /* Errors */
-    TOKEN_ERROR
-} token_t;
+#define tx(s) TOKEN_##s
+#define ts ,
+typedef enum { TOKS(tx, ts,) } token_t;
+#undef tx
+#undef ts
