@@ -5,12 +5,18 @@ int get_string_token();
 int is_valid_multiline_comment();
 int get_ident_token();
 %}
+
+%option yylineno
+
 DIGIT [0-9]
 LETTER [a-zA-Z]
-ASCII_CHAR [\x00-\x7F]
-HEX_DIGIT [0-9a-fA-F]
+CHAR    \'((\\0x[0-9a-fA-F][0-9a-fA-F])|(\\?.))?\'
+STRING  \"(([^\\]\\\")|[^\"])*\"
+COMMENT (\/\*((\*[^/]?)|[^*])*(\*\/))|(\/\/.*)
+
 %%
 (" "|\t|\v|\r|\n|\f) /* skip whitespace */
+
     /* Keywords */
 array                                { return TOKEN_ARRAY; }
 auto                                 { return TOKEN_AUTO; }
@@ -32,44 +38,39 @@ string                               { return TOKEN_STRING_TYPE; }
 function                             { return TOKEN_FUNCTION; }
 true                                 { return TOKEN_TRUE; }
 
-({LETTER}|_)+({DIGIT}|{LETTER}|_)*       { return get_ident_token(); }
+({LETTER}|_)+({DIGIT}|{LETTER}|_)*   { return TOKEN_IDENT; }
+
+{CHAR}                               { return TOKEN_CHAR_LITERAL; }
+{STRING}                             { return TOKEN_STRING_LITERAL; }
 
 \'([^\'\\\n]|\\.|\\0x{HEX_DIGIT}{2})\'                     { return TOKEN_CHAR_LITERAL; }
 \"([^\"\\\n]|\\.|\\0x{HEX_DIGIT}{2})*\"                   { return get_string_token(); }
     /* Punctuation */
-:                                    { return TOKEN_COLON; }
-;                                    { return TOKEN_SEMICOLON; }
-,                                    { return TOKEN_COMMA;     }
-=                                    { return TOKEN_ASSIGN; }
-\{                                    { return TOKEN_LBRACE; }
-\}                                    { return TOKEN_RBRACE; }
+\:                                   { return TOKEN_COLON; }
+\;                                   { return TOKEN_SEMICOLON; }
+\,                                   { return TOKEN_COMMA; }
+\=                                   { return TOKEN_ASSIGN; }
+\{                                   { return TOKEN_LBRACE; }
+\}                                   { return TOKEN_RBRACE; }
 \[                                   { return TOKEN_L_SQ_BRACKET; }
 \]                                   { return TOKEN_R_SQ_BRACKET; }
-\(                                    { return TOKEN_LPAREN; }
-\)                                    { return TOKEN_RPAREN; }
+\(                                   { return TOKEN_LPAREN; }
+\)                                   { return TOKEN_RPAREN; }
+\<                                   { return TOKEN_LESS; }
+\>                                   { return TOKEN_GREATER; }
+\^                                   { return TOKEN_EXPONENT; }
+\!                                   { return TOKEN_NOT; }
+\%                                   { return TOKEN_MODULO; }
+\#                                   { return TOKEN_HASH; }
+"&&"                                 { return TOKEN_AND; }
+"||"                                 { return TOKEN_OR; }
+
 \+                                   { return TOKEN_PLUS; }
 \-                                   { return TOKEN_MINUS; }
 \*                                   { return TOKEN_MUL; }
-\^                                   { return TOKEN_EXPONENT; }
 \/                                   { return TOKEN_DIV; }
-%                                   { return TOKEN_MODULO; }
-\>                                   { return TOKEN_GREATER; }
-\<                                   { return TOKEN_LESS; }
-!                                   { return TOKEN_NOT; }
-\+\+                                 {return TOKEN_INCREMENT; }
-\-\-                                 {return TOKEN_DECREMENT;}
-\>= {return TOKEN_GREATER_EQUAL; }
-\<= {return TOKEN_LESS_EQUAL; }
-== { return TOKEN_EQUAL;}
-!= { return TOKEN_NOT_EQUAL; }
-# { return TOKEN_HASH;}
-&& {return TOKEN_AND;}
-\|\| {return TOKEN_OR;}
-(0x)+([0-9]|[a-f]|[A-F])*            { return TOKEN_INTEGER_LITERAL; }
-(0b)+(0|1)*                          { return TOKEN_INTEGER_LITERAL; }
-{DIGIT}+((\.){DIGIT}+)?(e|E)(\+|\-)?{DIGIT}+      { return TOKEN_DOUBLE_LITERAL; }
-{DIGIT}+                        { return TOKEN_INTEGER_LITERAL; }
-{DIGIT}*(\.({DIGIT})+)?          { return TOKEN_DOUBLE_LITERAL; }
+
+{COMMENT}
 
 
 "//".*                               { /* Single line comment */}
