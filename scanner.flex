@@ -1,5 +1,9 @@
+%option   yylineno
 %{
 #include "token.h"
+int get_string_token();
+int is_valid_multiline_comment();
+int get_ident_token();
 %}
 
 %option yylineno
@@ -39,6 +43,8 @@ true                                 { return TOKEN_TRUE; }
 {CHAR}                               { return TOKEN_CHAR_LITERAL; }
 {STRING}                             { return TOKEN_STRING_LITERAL; }
 
+\'([^\'\\\n]|\\.|\\0x{HEX_DIGIT}{2})\'                     { return TOKEN_CHAR_LITERAL; }
+\"([^\"\\\n]|\\.|\\0x{HEX_DIGIT}{2})*\"                   { return get_string_token(); }
     /* Punctuation */
 \:                                   { return TOKEN_COLON; }
 \;                                   { return TOKEN_SEMICOLON; }
@@ -66,9 +72,57 @@ true                                 { return TOKEN_TRUE; }
 
 {COMMENT}
 
-(0x)+([0-9]|[a-f]|[A-F])*            { return TOKEN_HEXADECIMAL; }
-(0b)+(0|1)*                          { return TOKEN_BINARY; }
-{DIGIT}+(\.({DIGIT})+)?              { return TOKEN_DECIMAL; }
+
+"//".*                               { /* Single line comment */}
+"/*"                                 { if (!is_valid_multiline_comment()) return TOKEN_ERROR; }
 .                                    { return TOKEN_ERROR; }
 %%
 int yywrap() { return 1; }
+int is_valid_multiline_comment() {
+    // Here means we found a multiline comment
+    int prev_char = 0;
+    int current_char;
+    int beg_line_no = yylineno;
+
+    while ((current_char = input()) != EOF && current_char != 0) {
+        if (prev_char == '*' && current_char == '/') {
+            return 1;
+        }
+        prev_char = current_char;
+    }
+    printf("Error: Unmatched multiline comment at line %d \n", beg_line_no);
+    return 0;
+}
+
+int get_string_token() {
+    int actual_str_length = 0;
+    int i = 0;
+
+    while(i < yyleng) {
+        if (yytext[i] == '\\') {
+            if (i < yyleng - 5  && yytext[i+1] == '0' && yytext[i+2] == 'x') {
+                i += 5; // Skip hex numbers as chars
+                actual_str_length++;
+                continue;
+            } else {
+                i += 2;    // Skip escape chars
+                actual_str_length++;
+                continue;
+            }
+        }
+        i += 1;
+        actual_str_length++;
+    }
+    
+    if (actual_str_length > 257) {
+        printf("Error: String literal exceeds 255 characters\n");
+        return TOKEN_ERROR;
+    }
+    // printf("length %d\n", actual_str_length);
+    return TOKEN_STRING_LITERAL; 
+}
+
+int get_ident_token() {
+    if (yyleng > 255) return TOKEN_ERROR;
+    return TOKEN_IDENT;
+}

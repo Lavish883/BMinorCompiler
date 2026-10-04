@@ -1,6 +1,9 @@
 // just runs all basic tokens
 //
-/* comment */
+/* comment 
+
+
+*/
 array 
 boolean 
 char 
@@ -52,3 +55,6 @@ ab3a
 ""
 "a"
 "aa"
+"\n\tfoosodifusldif"
+"\n\t\0x"
+"\0xsdflisudf"

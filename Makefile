@@ -1,30 +1,38 @@
-CC = gcc
-CFLAGS = -Wall -Wextra -std=c2x -g -fsanitize=address -Wno-implicit-fallthrough -Wno-unused-function -Wno-implicit-function-declaration
+CC     = gcc
+CFLAGS = -Wall -Wextra -g -fsanitize=address -Wno-implicit-fallthrough -Wno-unused-function -Wno-implicit-function-declaration
 
-TARGET = compiler
-CDIR = $(shell pwd)
+OBJS   = main.o lex.yy.o hash_table.o library.o
 
-SRCS = $(wildcard *.c)
-OBJS = $(SRCS:.c=.o)
-DEPS = $(wildcard *.h)
+all: compiler
 
-all: make_scanner_from_flex $(TARGET)
+compiler: $(OBJS)
+	$(CC) $(CFLAGS) -o compiler $(OBJS)
 
-make_scanner_from_flex:
+main.o: main.c token.h
+	$(CC) $(CFLAGS) -c main.c
+
+lex.yy.o: lex.yy.c token.h
+	$(CC) $(CFLAGS) -c lex.yy.c
+
+lex.yy.c: scanner.flex
 	flex scanner.flex
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
 
-%.o: %.c $(DEPS)
-	$(CC) $(CFLAGS) -c $< -o $@
+hash_table.o: hash_table.c hash_table.h
+	$(CC) $(CFLAGS) -c hash_table.c
 
-make_then_run: $(TARGET) run
+library.o: library.c
+	$(CC) $(CFLAGS) -c library.c
 
-run:
-	./$(TARGET)
+run: compiler
+	./compiler
+
+make_then_run: run
+
+test_scanner: compiler
+	cd tests/scanner && ./run_all_tests.sh ../../compiler true
+
 clean:
-	rm -f $(OBJS) $(TARGET)
-	cd tests/scanner && find . -type f -name "*.out" -delete
-test_scanner:
-	cd tests/scanner && ./run_all_tests.sh $(CDIR)/$(TARGET)
-.PHONY: all make_then_run clean run test_scanner
+	rm -f $(OBJS) compiler lex.yy.c
+	find tests/scanner -type f -name "*.out" -delete
+
+.PHONY: all run make_then_run test_scanner clean

@@ -5,13 +5,16 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-echo $1
+# $1 compiler path
+# $2 true if you only want to show errors 
 
 for testfile in good*.bminor
 do
 	if $1 -f $testfile -s > $testfile.out
 	then
-		echo "$testfile success (as expected)"
+		if [ "$2" != "true" ]; then 
+			echo "$testfile success (as expected)"
+		fi
 	else
 		echo "$testfile failure (INCORRECT)"
 	fi
@@ -23,6 +26,8 @@ do
 	then
 		echo "$testfile success (INCORRECT)"
 	else
-		echo "$testfile failure (as expected)"
+		if [ "$2" != "true" ]; then 
+			echo "$testfile failure (as expected)"
+		fi
 	fi
 done

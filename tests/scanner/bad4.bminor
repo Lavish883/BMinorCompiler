@@ -1,2 +1,2 @@
 // doesn't support floating point
-// 50006.0050;  -- 2025: valid TOKEN_DOUBLE_LITERAL
+50006.0050;  -- 2025: valid TOKEN_DOUBLE_LITERAL
