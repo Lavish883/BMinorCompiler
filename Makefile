@@ -1,38 +1,25 @@
 CC     = gcc
 CFLAGS = -Wall -Wextra -g -fsanitize=address -Wno-implicit-fallthrough -Wno-unused-function -Wno-implicit-function-declaration
 
-OBJS   = main.o lex.yy.o hash_table.o library.o
+# used in_module_exercise 7 to update the makefile to use bison
 
-all: compiler
+bminor: main.o scanner.o parser.o
+	$(CC) $(CFLAGS) main.o scanner.o parser.o -o bminor -lm
 
-compiler: $(OBJS)
-	$(CC) $(CFLAGS) -o compiler $(OBJS)
+%.o: %.c 
+	$(CC) $(CFLAGS) -c $< -o $@
 
-main.o: main.c token.h
-	$(CC) $(CFLAGS) -c main.c
+scanner.c: scanner.flex parser.h
+	flex -oscanner.c scanner.flex
 
-lex.yy.o: lex.yy.c token.h
-	$(CC) $(CFLAGS) -c lex.yy.c
+parser.c parser.h: parser.bison
+	bison --defines=parser.h --output=parser.c -v parser.bison
 
-lex.yy.c: scanner.flex
-	flex scanner.flex
-
-hash_table.o: hash_table.c hash_table.h
-	$(CC) $(CFLAGS) -c hash_table.c
-
-library.o: library.c
-	$(CC) $(CFLAGS) -c library.c
-
-run: compiler
-	./compiler
-
-make_then_run: run
-
-test_scanner: compiler
-	cd tests/scanner && ./run_all_tests.sh ../../compiler true
+test_scanner: bminor
+	cd tests/scanner && ./run_all_tests.sh ../../bminor true
 
 clean:
-	rm -f $(OBJS) compiler lex.yy.c
+	rm -f parser.[ch] parser.output scanner.c *.o bminor
 	find tests/scanner -type f -name "*.out" -delete
 
 .PHONY: all run make_then_run test_scanner clean

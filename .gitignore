@@ -7,3 +7,8 @@ lex.yy.c
 /lex.yy.c
 /Group1_CC_A1.zip
 /test_submission
+bminor
+parser.c
+parser.h
+parser.output
+scanner.c

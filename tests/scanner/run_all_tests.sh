@@ -10,7 +10,7 @@ fi
 
 for testfile in good*.bminor
 do
-	if $1 -f $testfile -s > $testfile.out
+	if $1 $testfile -s > $testfile.out
 	then
 		if [ "$2" != "true" ]; then 
 			echo "$testfile success (as expected)"
@@ -22,7 +22,7 @@ done
 
 for testfile in bad*.bminor
 do
-	if $1 -f $testfile -s > $testfile.out
+	if $1 $testfile -s > $testfile.out
 	then
 		echo "$testfile success (INCORRECT)"
 	else
