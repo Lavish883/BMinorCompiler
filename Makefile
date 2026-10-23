@@ -36,7 +36,7 @@ test_%: tests/% $(ARTIFACT) FORCE_PHONY
 
 clean:
 	find . -type f \( -name '*.out.*' -o -name '*.out' -o -name '*.o' -o -name '$(ARTIFACT)' \) -delete -print
-	rm -r $(ZIPNAME) || true
+	rm -r $(ZIPNAME) $(ZIPNAME).zip || true
 
 rebuild:
 	$(MAKE) clean
@@ -44,7 +44,7 @@ rebuild:
 
 ZIPNAME = Group1_CC_A$(ASSIGN)
 zip: Makefile main.c scanner.flex token.h tests
-	rm -r $(ZIPNAME) || true
+	rm -r $(ZIPNAME) $(ZIPNAME).zip || true
 	mkdir $(ZIPNAME)
 	cp -r $^ $(ZIPNAME)
 	zip -r $(ZIPNAME).zip $(ZIPNAME)
