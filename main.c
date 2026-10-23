@@ -7,7 +7,7 @@
 extern FILE *yyin;
 extern char *yytext;
 extern int yylineno;
-int yylex(void);
+extern int yylex(void);
 extern const char *const token_names[];
 
 int main(int argc, char* argv[]) {
