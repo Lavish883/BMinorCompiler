@@ -1,38 +1,39 @@
-CC     = gcc
-CFLAGS = -Wall -Wextra -g -fsanitize=address -Wno-implicit-fallthrough -Wno-unused-function -Wno-implicit-function-declaration
 
-OBJS   = main.o lex.yy.o hash_table.o library.o
+### strict flags for develompent and testing
+CC       = gcc -std=c17 -Wall -Wextra -Weverything -Wno-unsafe-buffer-usage -Wno-unused-macros -Wno-pre-c11-compat -Wno-declaration-after-statement -Wno-unused-const-variable -pedantic -Wc11-extensions -fno-gnu89-inline
 
-all: compiler
+### NOTE: use this for submission (we want most compliance from grader's compiler)
+# CC      = gcc
 
-compiler: $(OBJS)
-	$(CC) $(CFLAGS) -o compiler $(OBJS)
+ARTIFACT = bminor
 
-main.o: main.c token.h
-	$(CC) $(CFLAGS) -c main.c
+### NOTE: keep artifact the first recipe
+$(ARTIFACT): scanner.out.o main.o
+	$(CC) $^ -o bminor -lm
 
-lex.yy.o: lex.yy.c token.h
-	$(CC) $(CFLAGS) -c lex.yy.c
+### out recipes
+scanner.out.c: scanner.flex token.h
+	flex -o $@ $<
 
-lex.yy.c: scanner.flex
-	flex scanner.flex
+%.o: %.c
+	$(CC) -c $< -o $@
 
-hash_table.o: hash_table.c hash_table.h
-	$(CC) $(CFLAGS) -c hash_table.c
 
-library.o: library.c
-	$(CC) $(CFLAGS) -c library.c
+### phony recipes
+.PHONY: clean test scan_test FORCE_PHONY
+FORCE_PHONY:
 
-run: compiler
-	./compiler
+### NOTE: change this to match the current assignment
+test: test_scan
 
-make_then_run: run
-
-test_scanner: compiler
-	cd tests/scanner && ./run_all_tests.sh ../../compiler true
+### NOTE: auto generate all tests like "test_scanner", "test_parser", etc
+test_%: tests/% $(ARTIFACT) FORCE_PHONY
+	find tests -type f \( -name '*.out' \) -delete
+	sh tests/run_all_tests.sh $< true ./$(ARTIFACT) --$*
 
 clean:
-	rm -f $(OBJS) compiler lex.yy.c
-	find tests/scanner -type f -name "*.out" -delete
+	find . -type f \( -name '*.out.*' -o -name '*.out' -o -name '*.o' -o -name '$(ARTIFACT)' \) -delete -print
 
-.PHONY: all run make_then_run test_scanner clean
+rebuild:
+	$(MAKE) clean
+	$(MAKE)
