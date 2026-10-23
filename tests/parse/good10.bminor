@@ -3,6 +3,7 @@ x:integer;
 y:integer;
 z:integer;
 arr:array[5] array[5] integer;
+arr:array[5] array[5] integer = {{1, 2, 34, 4, 5}, {2, 3, 5, 2, 3}};
 str: string = "hello world";
 fxn : function  integer () =
 {

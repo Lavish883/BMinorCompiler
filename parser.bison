@@ -77,12 +77,12 @@ transl_unit
 
 extern_decl
     : decl
-    | TOKEN_IDENT TOKEN_COLON func_type TOKEN_ASSIGN block
+    | TOKEN_IDENT TOKEN_COLON func_type TOKEN_SEMICOLON
     ;
 
 decl
     : TOKEN_IDENT TOKEN_COLON obj_type initzr_opt TOKEN_SEMICOLON
-    | TOKEN_IDENT TOKEN_COLON func_type TOKEN_SEMICOLON
+    | TOKEN_IDENT TOKEN_COLON func_type TOKEN_ASSIGN block
     ;
 
 primitive_type
