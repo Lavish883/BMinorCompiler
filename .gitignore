@@ -1,9 +1,3 @@
-*.o
-compiler
-*.out
-.DS_Store
-*.outlex.yy.c
-lex.yy.c
-/lex.yy.c
-/Group1_CC_A1.zip
-/test_submission
+*.ignore.*
+*.ignore
+*.ignore/

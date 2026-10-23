@@ -2,56 +2,56 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "token.h"
+#include "parser.out.h"
 
-#define tx(s) #s
-#define ts ,
-static const char* token_names[] = { TOKS(tx, ts,) };
-#undef tx
-#undef ts
-
-extern FILE* yyin;
-extern token_t yylex(void);
-extern char* yytext;
+extern FILE *yyin;
+extern char *yytext;
 extern int yylineno;
+int yylex(void);
+extern const char *const token_names[];
 
 int main(int argc, char* argv[]) {
-    int had_error = 0, scan_show = 0, parse_do = 0;
-
-    //////////////// args begin
     if (argc < 3) {
-        had_error = 1;
-        fputs("driver error: Bad arguments\n", stdout);
-        goto end;
-    }
-
-    if (strcmp(argv[1], "--scan") == 0) scan_show = 1;
-    if (strcmp(argv[1], "--parse") == 0) parse_do = 1;
-
-    #define file_name argv[2]
-    //////////////// args end
-
-    //////////////// scanner begin
-    yyin = fopen(file_name, "r");
-    if (yyin == NULL) {
-        printf("driver error: Could not open file named: `%s`!\n", file_name);
+        fprintf(stderr,
+            "Usage:\n"
+                "\t%s --scan BMINOR_SOURCE_FILE\n"
+                "\t%s --parse BMINOR_SOURCE_FILE\n"
+        , argv[0], argv[0]);
         return 1;
     }
-    if (scan_show) printf("======[STARTING TESTS AT `%s`]======\n\n", file_name);
-    for (;;) {
-        token_t t = yylex();
-        if (t == TOKEN_EOF) break;
-        if (t == TOKEN_ERROR) {
-            printf("scan error: Unrecognized token: `%s`, Line Number: %d\n", yytext, yylineno);
-            had_error = 1;
-            continue;
-        }
-        else if (scan_show) printf("Token: %s, Text: `%s`, Line Number: %d\n", token_names[t], yytext, yylineno);
+    #define file_name argv[2]
+
+    yyin = fopen(file_name, "r");
+    if (yyin == NULL) {
+        perror(file_name);
+        return 1;
     }
-    if (scan_show) printf("\n======[FINISHED TESTS AT `%s`]======\n", file_name);
-    //////////////// scanner end
 
+    int had_error = 0;
 
-    end:
+    if (strcmp(argv[1], "--scan") == 0) {
+        for (;;) {
+            const int token = yylex();
+            if (token == TOKEN_EOF) break;
+            if (token == TOKEN_ERROR) {
+                fprintf(stderr, "scan error: unrecognized token:`%s`, line:%d\n", yytext, yylineno);
+                had_error = 1;
+                continue;
+            }
+            fprintf(stderr, "token:'%s', text:`%s`, line:%d\n", token_names[token], yytext, yylineno);
+        }
+    }
+
+    if (strcmp(argv[1], "--parse") == 0) {
+        had_error = yyparse() != 0;
+
+        if (fclose(yyin) == EOF) {
+            perror(argv[2]);
+            had_error = 1;
+        }
+
+        if (!had_error) puts("parse successful");
+    }
+
     return had_error ? 1 : 0;
 }

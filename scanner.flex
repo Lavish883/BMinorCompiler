@@ -1,6 +1,6 @@
-%option   yylineno
+%option yylineno
 %{
-#include "token.h"
+#include "parser.out.h"
 int get_string_token();
 int is_valid_multiline_comment();
 int get_ident_token();
