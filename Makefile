@@ -23,22 +23,22 @@ scanner.out.c: scanner.flex token.h
 
 
 ### phony recipes
-.PHONY: clean test scan_test FORCE_PHONY
-FORCE_PHONY:
+.PHONY: zip FORCE_PHONY
+FORCE_PHONY: # turn phony into a dependency
 
 ### NOTE: change this to match the current assignment
-test: test_scan
+test: test_scan FORCE_PHONY
 
 ### NOTE: auto generate all tests like "test_scanner", "test_parser", etc
 test_%: tests/% $(ARTIFACT) FORCE_PHONY
 	find tests -type f \( -name '*.out' \) -delete
 	sh tests/run_all_tests.sh $< true ./$(ARTIFACT) --$*
 
-clean:
+clean: FORCE_PHONY
 	find . -type f \( -name '*.out.*' -o -name '*.out' -o -name '*.o' -o -name '$(ARTIFACT)' \) -delete -print
 	rm -r $(ZIPNAME) $(ZIPNAME).zip || true
 
-rebuild:
+rebuild: FORCE_PHONY
 	$(MAKE) clean
 	$(MAKE)
 
