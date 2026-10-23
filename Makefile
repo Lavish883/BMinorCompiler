@@ -1,4 +1,7 @@
 
+### assignment number
+ASSIGN = 2
+
 ### strict flags for develompent and testing
 CC       = gcc -std=c17 -Wall -Wextra -Weverything -Wno-unsafe-buffer-usage -Wno-unused-macros -Wno-pre-c11-compat -Wno-declaration-after-statement -Wno-unused-const-variable -pedantic -Wc11-extensions -fno-gnu89-inline
 
@@ -33,7 +36,15 @@ test_%: tests/% $(ARTIFACT) FORCE_PHONY
 
 clean:
 	find . -type f \( -name '*.out.*' -o -name '*.out' -o -name '*.o' -o -name '$(ARTIFACT)' \) -delete -print
+	rm -r $(ZIPNAME) || true
 
 rebuild:
 	$(MAKE) clean
 	$(MAKE)
+
+ZIPNAME = Group1_CC_A$(ASSIGN)
+zip: Makefile main.c scanner.flex token.h tests
+	rm -r $(ZIPNAME) || true
+	mkdir $(ZIPNAME)
+	cp -r $^ $(ZIPNAME)
+	zip -r $(ZIPNAME).zip $(ZIPNAME)
