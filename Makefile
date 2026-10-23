@@ -3,7 +3,7 @@ CFLAGS = -Wall -Wextra -g -fsanitize=address -Wno-implicit-fallthrough -Wno-unus
 
 # used in_module_exercise 7 to update the makefile to use bison
 
-bminor: main.o scanner.o parser.o
+bminor: parser.o scanner.o main.o
 	$(CC) $(CFLAGS) main.o scanner.o parser.o -o bminor -lm
 
 %.o: %.c 
@@ -17,6 +17,9 @@ parser.c parser.h: parser.bison
 
 test_scanner: bminor
 	cd tests/scanner && ./run_all_tests.sh ../../bminor true
+
+test_parser: bminor
+	cd tests/parser && ./run_all_tests.sh ../../bminor true
 
 clean:
 	rm -f parser.[ch] parser.output scanner.c *.o bminor

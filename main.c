@@ -3,25 +3,21 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "token.h"
-
-#define tx(s) #s
-#define ts ,
-static const char *token_names[] = {TOKS(tx, ts, )};
-#undef tx
-#undef ts
+#include "parser.h"
 
 extern FILE *yyin;
 extern int yylex();
 extern char *yytext;
 extern int yylineno;
+extern int yyparse();
+extern const char* get_token_name(int tok);
 
-bool had_error;
+bool scan() {
+    bool had_error = false;
 
-void scan() {
-    printf("Beginning scanning");
+    printf("Beginning scanning\n");
     while (1) {
-        token_t t = yylex();
+        int t = yylex();
         if (t == TOKEN_EOF)
             break;
         if (t == TOKEN_ERROR) {
@@ -30,12 +26,24 @@ void scan() {
             had_error = true;
             continue;
         }
-        printf("Token: %s, Text: %s, Line Number: %d\n", token_names[t], yytext,
+        printf("Token: %s, Text: %s, Line Number: %d\n", get_token_name(t), yytext,
                yylineno);
     }
+
+    return had_error;
 }
 
-void parse() {}
+bool parse() {
+    printf("Beginning parse\n");
+
+    if (yyparse() == 0 ) {
+		printf("Parse successful!\n");
+		return false;
+	}
+
+	printf("Parse failed.\n");
+	return true;
+}
 
 int main(int argc, char *argv[]) {
     // Get all the flags for the program
@@ -81,19 +89,18 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     printf("======[STARTING TESTS AT %s]======\n\n", file_name);
-
-    bool had_error = false;
-
-    if (scan_flag) {
-        if (parse_flag) {
-            printf("Passed both scan flag and parse flag, undefined behavior");
-            return 1;
-        }
-        printf("Running in scan mode.");
-        scan();
+    
+    bool had_error;
+    
+    if (scan_flag && parse_flag) {
+        printf("Passed both scan flag and parse flag, undefined behavior\n");
+        return 1;
     }
-    if (parse_flag) {
-        parse();
+    if (scan_flag) {
+        printf("Running in scan mode.\n");
+        had_error = scan();
+    } else if (parse_flag) {
+        had_error = parse();
     } else {
         printf("[ERROR] No flags passed, exiting. Please pass a scan or parse "
                "flag.");
