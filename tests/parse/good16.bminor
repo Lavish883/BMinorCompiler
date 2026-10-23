@@ -1,4 +1,5 @@
 
+main: function void () = {
 if (true) {
   if (false) {
 
@@ -23,4 +24,4 @@ else {
   else { }
 }
 
-
+}
