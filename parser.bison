@@ -153,7 +153,7 @@ block
 
 block_items
     : %empty
-    | block_items decl
+    | block_items TOKEN_IDENT TOKEN_COLON obj_type initzr_opt TOKEN_SEMICOLON
     | block_items stmt
     ;
 
