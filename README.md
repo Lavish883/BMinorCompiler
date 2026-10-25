@@ -35,3 +35,6 @@ make test_scan BISON=/opt/homebrew/opt/bison/bin/bison
 make test_parse BISON=/opt/homebrew/opt/bison/bin/bison
 make BISON=/opt/homebrew/opt/bison/bin/bison
 ```
+
+## Note
+We renamed `tests/parser` to `tests/parse` to match the parse flag.
