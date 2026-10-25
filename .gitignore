@@ -15,3 +15,6 @@ parser.c
 parser.h
 parser.output
 scanner.c
+parser.out.c
+parser.out.h
+scanner.out.c
