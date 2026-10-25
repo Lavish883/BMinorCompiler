@@ -65,8 +65,10 @@ true                                 { return TOKEN_TRUE; }
 # { return TOKEN_HASH;}
 && {return TOKEN_AND;}
 \|\| {return TOKEN_OR;}
-(0x)+([0-9]|[a-f]|[A-F])*            { return TOKEN_INTEGER_LITERAL; }
-(0b)+(0|1)*                          { return TOKEN_INTEGER_LITERAL; }
+0x{HEX_DIGIT}+            { return TOKEN_INTEGER_LITERAL; }
+0b(0|1)+                          { return TOKEN_INTEGER_LITERAL; }
+    /* Malformed 0x/0b literal (0x, 0x0x1, 0b012) */
+0[xb]({DIGIT}|{LETTER}|_)*           { return TOKEN_ERROR; }
 {DIGIT}+((\.){DIGIT}+)?(e|E)(\+|\-)?{DIGIT}+      { return TOKEN_DOUBLE_LITERAL; }
 {DIGIT}+                        { return TOKEN_INTEGER_LITERAL; }
 {DIGIT}*(\.({DIGIT})+)?          { return TOKEN_DOUBLE_LITERAL; }
