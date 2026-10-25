@@ -9,6 +9,7 @@ extern char *yytext;
 extern int yylineno;
 int yylex(void);
 extern const char *const token_names[];
+void print_scan_error(void);
 
 int main(int argc, char* argv[]) {
     if (argc < 3) {
@@ -39,7 +40,7 @@ int main(int argc, char* argv[]) {
             const int token = yylex();
             if (token == TOKEN_EOF) break;
             if (token == TOKEN_ERROR) {
-                fprintf(stderr, "scan error: unrecognized token:`%s`, line:%d\n", yytext, yylineno);
+                print_scan_error();
                 had_error = 1;
                 continue;
             }

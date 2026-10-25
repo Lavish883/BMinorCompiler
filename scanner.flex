@@ -4,6 +4,7 @@
 int get_string_token();
 int is_valid_multiline_comment();
 int get_ident_token();
+static int scan_error(const char *reason, int line, int show_text);
 %}
 DIGIT [0-9]
 LETTER [a-zA-Z]
@@ -68,22 +69,22 @@ true                                 { return TOKEN_TRUE; }
 0x{HEX_DIGIT}+            { return TOKEN_INTEGER_LITERAL; }
 0b(0|1)+                          { return TOKEN_INTEGER_LITERAL; }
     /* Malformed 0x/0b literal (0x, 0x0x1, 0b012) */
-0[xb]({DIGIT}|{LETTER}|_)*           { return TOKEN_ERROR; }
+0[xb]({DIGIT}|{LETTER}|_)*           { return scan_error("malformed integer literal", yylineno, 1); }
 {DIGIT}+((\.){DIGIT}+)?(e|E)(\+|\-)?{DIGIT}+      { return TOKEN_DOUBLE_LITERAL; }
 {DIGIT}+                        { return TOKEN_INTEGER_LITERAL; }
-{DIGIT}*(\.({DIGIT})+)?          { return TOKEN_DOUBLE_LITERAL; }
+{DIGIT}+\.{DIGIT}+                { return TOKEN_DOUBLE_LITERAL; }
 
 
 "//".*                               { /* Single line comment */}
-"/*"                                 { if (!is_valid_multiline_comment()) return TOKEN_ERROR; }
-.                                    { return TOKEN_ERROR; }
+"/*"                                 { int start_line = yylineno;
+                                       if (!is_valid_multiline_comment()) return scan_error("unterminated comment", start_line, 0); }
+.                                    { return scan_error("unrecognized token", yylineno, 1); }
 %%
 int yywrap() { return 1; }
 int is_valid_multiline_comment() {
     // Here means we found a multiline comment
     int prev_char = 0;
     int current_char;
-    int beg_line_no = yylineno;
 
     while ((current_char = input()) != EOF && current_char != 0) {
         if (prev_char == '*' && current_char == '/') {
@@ -91,7 +92,6 @@ int is_valid_multiline_comment() {
         }
         prev_char = current_char;
     }
-    printf("Error: Unmatched multiline comment at line %d \n", beg_line_no);
     return 0;
 }
 
@@ -116,14 +116,32 @@ int get_string_token() {
     }
 
     if (actual_str_length > 257) {
-        printf("Error: String literal exceeds 255 characters\n");
-        return TOKEN_ERROR;
+        return scan_error("string literal longer than 255 characters", yylineno, 0);
     }
     // printf("length %d\n", actual_str_length);
     return TOKEN_STRING_LITERAL;
 }
 
 int get_ident_token() {
-    if (yyleng > 255) return TOKEN_ERROR;
+    if (yyleng > 255) return scan_error("identifier longer than 255 characters", yylineno, 0);
     return TOKEN_IDENT;
+}
+
+/* why the last TOKEN_ERROR was returned, for print_scan_error() */
+static const char *error_reason = "unrecognized token";
+static int error_line = 0;
+static int error_shows_text = 1;
+
+static int scan_error(const char *reason, int line, int show_text) {
+    error_reason = reason;
+    error_line = line;
+    error_shows_text = show_text;
+    return TOKEN_ERROR;
+}
+
+/* call right after yylex() returns TOKEN_ERROR, while yytext still holds the token */
+void print_scan_error(void) {
+    fprintf(stderr, "scan error: on line %d: %s", error_line, error_reason);
+    if (error_shows_text) fprintf(stderr, " `%s`", yytext);
+    fputc('\n', stderr);
 }

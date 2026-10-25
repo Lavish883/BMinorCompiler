@@ -5,7 +5,7 @@ int yylex(void);
 void yyerror(const char *message);
 extern const char *input_filename;
 extern int yylineno;
-extern char *yytext;
+void print_scan_error(void);
 %}
 
 %define parse.error verbose
@@ -286,7 +286,7 @@ primary
 void yyerror(const char *message)
 {
     if (yychar == TOKEN_ERROR) {
-        fprintf(stderr, "scan error: line:%d, unrecognized token: `%s`\n", yylineno, yytext);
+        print_scan_error();
         return;
     }
 
