@@ -18,12 +18,19 @@ if [ ! -d "$testdir" ]; then
     exit 1
 fi
 
+failed=0
+
 for testfile in "$testdir"/bad*.bminor
 do
     [ -f "$testfile" ] || continue
 
     if "$binary" "$@" "$testfile" > "$testfile.out" 2>&1; then
         printf '\033[31m[!!] %s\t success (INCORRECT)\033[0m\n' "$testfile"
+        failed=1
+    # a failure must report itself as "scan error: ...", "parse error: ...", etc
+    elif ! grep -Eq '^[a-z]+ error:' "$testfile.out"; then
+        printf '\033[31m[!!] %s\t failure without an "... error:" message (INCORRECT)\033[0m\n' "$testfile"
+        failed=1
     else
         if [ "$errors_only" != "true" ]; then
             printf '\033[32m[OK]\033[0m %s\t failure (as expected)\n' "$testfile"
@@ -41,5 +48,8 @@ do
         fi
     else
         printf '\033[31m[!!] %s\t failure (INCORRECT)\033[0m\n' "$testfile"
+        failed=1
     fi
 done
+
+exit "$failed"

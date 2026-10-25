@@ -19,6 +19,11 @@ int main(int argc, char* argv[]) {
         , argv[0], argv[0]);
         return 1;
     }
+
+    if (strcmp(argv[1], "--scan") != 0 && strcmp(argv[1], "--parse") != 0) {
+        fprintf(stderr, "%s: unknown option '%s' (expected --scan or --parse)\n", argv[0], argv[1]);
+        return 1;
+    }
     #define file_name argv[2]
 
     yyin = fopen(file_name, "r");
