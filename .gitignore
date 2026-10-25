@@ -7,9 +7,9 @@ compiler
 .DS_Store
 *.outlex.yy.c
 lex.yy.c
-/lex.yy.c
-/Group1_CC_A1.zip
-/test_submission
+lex.yy.c
+Group1_CC_A1.zip
+test_submission
 bminor
 parser.c
 parser.h
@@ -18,3 +18,4 @@ scanner.c
 parser.out.c
 parser.out.h
 scanner.out.c
+Group1_CC_A2-2.zip
