@@ -75,14 +75,15 @@ transl_unit
     | transl_unit extern_decl
     ;
 
+/* only top level functions: blocks take obj_decl, so definitions can't nest */
 extern_decl
-    : decl
+    : obj_decl
     | TOKEN_IDENT TOKEN_COLON func_type TOKEN_SEMICOLON
+    | TOKEN_IDENT TOKEN_COLON func_type TOKEN_ASSIGN block
     ;
 
-decl
+obj_decl
     : TOKEN_IDENT TOKEN_COLON obj_type initzr_opt TOKEN_SEMICOLON
-    | TOKEN_IDENT TOKEN_COLON func_type TOKEN_ASSIGN block
     ;
 
 primitive_type
@@ -153,11 +154,11 @@ block
 
 block_items
     : %empty
-    | block_items TOKEN_IDENT TOKEN_COLON obj_type initzr_opt TOKEN_SEMICOLON
+    | block_items obj_decl
     | block_items stmt
     ;
 
-/* decl is block item; never bare if/else/for bodyy */
+/* obj_decl is a block item, never a bare if/else/for body (Q3.0) */
 stmt
     : matchd_stmt
     | unmatchd_stmt
