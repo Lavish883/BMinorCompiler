@@ -1,0 +1,6 @@
+// Q2.2: commas only in print, function calls, prototypes and array initializers
+main: function void () = {
+	i: integer;
+	j: integer;
+	for( i=0; i<10, j<10; i++ ) { }
+}

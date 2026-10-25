@@ -1,0 +1,2 @@
+// Q2.6: an array initializer cannot be empty
+a: array [5] integer = {};

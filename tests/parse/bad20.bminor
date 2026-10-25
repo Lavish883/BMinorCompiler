@@ -1,0 +1,6 @@
+// Q3.0: a declaration cannot be the sole statement of an else
+main: function void () = {
+	x: integer = 5;
+	if( x<10 ) x = 1;
+	else b: integer = 10;
+}
