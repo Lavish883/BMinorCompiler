@@ -1,111 +1,63 @@
-#include <getopt.h>
-#include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
-#include "parser.h"
+#include "parser.out.h"
 
 extern FILE *yyin;
-extern int yylex();
 extern char *yytext;
 extern int yylineno;
-extern int yyparse();
-extern const char* get_token_name(int tok);
+int yylex(void);
+extern const char *const token_names[];
+void print_scan_error(void);
 
-bool scan() {
-    bool had_error = false;
-
-    printf("Beginning scanning\n");
-    while (1) {
-        int t = yylex();
-        if (t == TOKEN_EOF)
-            break;
-        if (t == TOKEN_ERROR) {
-            printf("[ERROR] Unrecognized token: %s, Line Number: %d\n", yytext,
-                   yylineno);
-            had_error = true;
-            continue;
-        }
-        printf("Token: %s, Text: %s, Line Number: %d\n", get_token_name(t), yytext,
-               yylineno);
+int main(int argc, char* argv[]) {
+    if (argc < 3) {
+        fprintf(stderr,
+            "Usage:\n"
+                "\t%s --scan BMINOR_SOURCE_FILE\n"
+                "\t%s --parse BMINOR_SOURCE_FILE\n"
+        , argv[0], argv[0]);
+        return 1;
     }
 
-    return had_error;
-}
-
-bool parse() {
-    printf("Beginning parse\n");
-
-    if (yyparse() == 0 ) {
-		printf("Parse successful!\n");
-		return false;
-	}
-
-	printf("Parse failed.\n");
-	return true;
-}
-
-int main(int argc, char *argv[]) {
-    // Get all the flags for the program
-    int opt;
-    int scan_flag = 0;  // Means behave just as a scanner (assignment #1)
-    int parse_flag = 0; // Means behave just as a parser (assignment #2)
-
-    char *file_name = NULL;
-
-    struct option arg_options[] = {
-        {.name = "scan", .has_arg = 0, .flag = &scan_flag, .val = true},
-        {.name = "parse", .has_arg = 0, .flag = &parse_flag, .val = true},
-        {0, 0, 0, 0}};
-
-    while ((opt = getopt_long(argc, argv, "sp", arg_options, NULL)) != -1) {
-        switch (opt) {
-        case 0: {
-            break;
-        }
-        case 's': {
-            scan_flag = 1;
-            break;
-        }
-        case 'p': {
-            parse_flag = 1;
-            break;
-        }
-        }
+    if (strcmp(argv[1], "--scan") != 0 && strcmp(argv[1], "--parse") != 0) {
+        fprintf(stderr, "%s: unknown option '%s' (expected --scan or --parse)\n", argv[0], argv[1]);
+        return 1;
     }
-
-    // printf("s:%d p:%d", scan_flag, parse_flag);
-    if (optind < argc) {
-        file_name = argv[optind];
-    }
-    if (file_name == NULL) {
-        printf("Make sure to specify a file as argument\n");
-        return -1;
-    }
+    #define file_name argv[2]
 
     yyin = fopen(file_name, "r");
     if (yyin == NULL) {
-        printf("Could not open file named: %s!\n", file_name);
+        perror(file_name);
         return 1;
-    }
-    printf("======[STARTING TESTS AT %s]======\n\n", file_name);
-    
-    bool had_error;
-    
-    if (scan_flag && parse_flag) {
-        printf("Passed both scan flag and parse flag, undefined behavior\n");
-        return 1;
-    }
-    if (scan_flag) {
-        printf("Running in scan mode.\n");
-        had_error = scan();
-    } else if (parse_flag) {
-        had_error = parse();
-    } else {
-        printf("[ERROR] No flags passed, exiting. Please pass a scan or parse "
-               "flag.");
     }
 
-    printf("\n======[FINISHED TESTS AT %s]======\n", file_name);
+    int had_error = 0;
+
+    if (strcmp(argv[1], "--scan") == 0) {
+        for (;;) {
+            const int token = yylex();
+            if (token == TOKEN_EOF) break;
+            if (token == TOKEN_ERROR) {
+                print_scan_error();
+                had_error = 1;
+                continue;
+            }
+            fprintf(stderr, "token:'%s', text:`%s`, line:%d\n", token_names[token], yytext, yylineno);
+        }
+    }
+
+    if (strcmp(argv[1], "--parse") == 0) {
+        had_error = yyparse() != 0;
+
+        if (fclose(yyin) == EOF) {
+            perror(argv[2]);
+            had_error = 1;
+        }
+
+        if (!had_error) puts("parse successful");
+    }
+
     return had_error ? 1 : 0;
 }

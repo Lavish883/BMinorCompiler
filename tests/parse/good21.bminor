@@ -1,0 +1,12 @@
+// Q2.0: print; prints nothing
+// Q2.1: return; returns from a void function
+// Q2.3: a single statement without braces after for, if and else
+// (Q2.7, the empty file, is good1)
+f: function void ( x: integer ) = {
+	i: integer;
+	print;
+	if( x < 0 ) return;
+	for( i=0; i<10; i++ ) print i;
+	if( x > 5 ) x = 1; else x = 2;
+	return;
+}

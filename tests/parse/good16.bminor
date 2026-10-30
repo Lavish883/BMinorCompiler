@@ -1,0 +1,27 @@
+
+main: function void () = {
+if (true) {
+  if (false) {
+
+  }
+  else {
+
+  }
+}
+
+if (true) { }
+else {
+  if (true) {
+
+  }
+}
+
+if (true) { }
+else {
+  if (true) {
+
+  }
+  else { }
+}
+
+}

@@ -1,0 +1,26 @@
+main: function void () = {
+
+for (;;) {
+    print "Lorem ipsum soreno torento Tarantino";
+}
+
+for (i = 0;;) {
+    print "Lorem ipsum soreno torento Tarantino";
+}
+
+i:integer = 0;
+for (;i < 100;) {
+    print "Lorem ipsum soreno torento Tarantino";
+}
+
+j:integer = 0;
+for (;j < 100;j++) {
+    print "Lorem ipsum soreno torento Tarantino";
+}
+
+l:integer = 0;
+for (l = 0; l < 100;) {
+    print "Lorem ipsum soreno torento Tarantino";
+}
+
+}

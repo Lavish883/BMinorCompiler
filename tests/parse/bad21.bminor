@@ -1,0 +1,5 @@
+// Q3.0: a declaration cannot be the sole statement of a for loop
+main: function void () = {
+	i: integer;
+	for( i=0; i<10; i++ ) c: integer = 30;
+}

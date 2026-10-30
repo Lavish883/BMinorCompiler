@@ -1,0 +1,7 @@
+// nested functions
+main: function void() = {
+	x:integer = 5;
+	f: function void() = {
+	print x;
+    }
+}

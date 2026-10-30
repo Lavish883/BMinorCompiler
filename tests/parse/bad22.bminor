@@ -1,0 +1,4 @@
+// function arguments may be of any type except auto or void
+f: function void ( a: auto, b: void ) = {
+	print a, b;
+}

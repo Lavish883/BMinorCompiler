@@ -1,0 +1,21 @@
+Diagnostics:
+  ClangTidy:
+    Add: []
+    Remove: ['*']
+
+CompileFlags:
+  Add: [
+    -std=c17,
+    -Wall,
+    -Wextra,
+    -Weverything,
+    -Wno-unsafe-buffer-usage,
+    -Wno-unused-macros,
+    -Wno-pre-c11-compat,
+    -Wno-declaration-after-statement,
+    -Wno-unused-const-variable,
+    -pedantic,
+    -Wc11-extensions,
+    -fno-gnu89-inline
+  ]
+  Remove: [-x, c++]

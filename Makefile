@@ -1,28 +1,60 @@
-CC     = gcc
-CFLAGS = -Wall -Wextra -g -fsanitize=address -Wno-implicit-fallthrough -Wno-unused-function -Wno-implicit-function-declaration
 
-# used in_module_exercise 7 to update the makefile to use bison
+### assignment number
+ASSIGN = 2
 
-bminor: parser.o scanner.o main.o
-	$(CC) $(CFLAGS) main.o scanner.o parser.o -o bminor -lm
+### strict flags for develompent and testing
+# CC       = gcc -std=c17 -Wall -Wextra -Weverything -Wno-unsafe-buffer-usage -Wno-unused-macros -Wno-pre-c11-compat -Wno-declaration-after-statement -Wno-unused-const-variable -pedantic -Wc11-extensions -fno-gnu89-inline
 
-%.o: %.c 
-	$(CC) $(CFLAGS) -c $< -o $@
+### NOTE: use this for submission (we want most compliance from grader's compiler)
+CC      = gcc
 
-scanner.c: scanner.flex parser.h
-	flex -oscanner.c scanner.flex
+ARTIFACT = bminor
 
-parser.c parser.h: parser.bison
-	bison --defines=parser.h --output=parser.c -v parser.bison
+# BSD/MacOS compat
+FLEX = flex
+BISON = bison
 
-test_scanner: bminor
-	cd tests/scanner && ./run_all_tests.sh ../../bminor true
+### NOTE: keep artifact the first recipe
+$(ARTIFACT): scanner.out.o parser.out.o main.o
+	$(CC) $^ -o $@ -lm
 
-test_parser: bminor
-	cd tests/parser && ./run_all_tests.sh ../../bminor true
+### out recipes
+scanner.out.c: scanner.flex parser.out.h
+	$(FLEX) -o $@ $<
 
-clean:
-	rm -f parser.[ch] parser.output scanner.c *.o bminor
-	find tests/scanner -type f -name "*.out" -delete
+scanner.out.o main.o: parser.out.h
 
-.PHONY: all run make_then_run test_scanner clean
+parser.out.o: parser.out.c parser.out.h
+
+%.out.c %.out.h: %.bison
+	$(BISON) -d -o $*.out.c $<
+
+%.o: %.c
+	$(CC) -c $< -o $@
+
+### phony recipes
+.PHONY: zip FORCE_PHONY
+FORCE_PHONY: # turn phony into a dependency
+
+### NOTE: change this to match the current assignment
+test: test_parse FORCE_PHONY
+
+### NOTE: auto generate all tests like "test_scanner", "test_parser", etc
+test_%: tests/% $(ARTIFACT) FORCE_PHONY
+	@ find tests -type f \( -name '*.out' \) -delete
+	@ sh tests/run_all_tests.sh $< false ./$(ARTIFACT) --$*
+
+clean: FORCE_PHONY
+	find . -type f \( -name '*.out.*' -o -name '*.out' -o -name '*.o' -o -name '$(ARTIFACT)' \) -delete -print
+	rm -r $(ZIPNAME) $(ZIPNAME).zip || true
+
+rebuild: FORCE_PHONY
+	$(MAKE) clean
+	$(MAKE)
+
+ZIPNAME = Group1_CC_A$(ASSIGN)
+zip: Makefile main.c scanner.flex parser.bison tests README.md
+	rm -r $(ZIPNAME) $(ZIPNAME).zip || true
+	mkdir $(ZIPNAME)
+	cp -r $^ $(ZIPNAME)
+	zip -r $(ZIPNAME).zip $(ZIPNAME)
