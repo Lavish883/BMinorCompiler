@@ -1,6 +1,6 @@
 
 ### assignment number
-ASSIGN = 2
+ASSIGN = 3
 
 ### strict flags for develompent and testing
 # CC       = gcc -std=c17 -Wall -Wextra -Weverything -Wno-unsafe-buffer-usage -Wno-unused-macros -Wno-pre-c11-compat -Wno-declaration-after-statement -Wno-unused-const-variable -pedantic -Wc11-extensions -fno-gnu89-inline
@@ -15,7 +15,7 @@ FLEX = flex
 BISON = bison
 
 ### NOTE: keep artifact the first recipe
-$(ARTIFACT): scanner.out.o parser.out.o main.o
+$(ARTIFACT): scanner.out.o parser.out.o main.o expr.o
 	$(CC) $^ -o $@ -lm
 
 ### out recipes
