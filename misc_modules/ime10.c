@@ -47,3 +47,34 @@ void scope_bind(const char* name, struct symbol* sym) {
     }
     hash_table_insert(current_table, name, sym);
 }
+struct symbol* scope_lookup_current(const char* name) {
+    if (scope_level() == 0) return NULL;
+    HASH_TABLE* current_table = stack_item(stack_size(symbol_stack) - 1);
+    if (!current_table) return NULL;
+    void* result = hash_table_lookup(current_table, name);
+    return (struct symbol*)result;
+}
+struct symbol* scope_lookup(const char* name) {
+    if (scope_level() == 0) return NULL;
+    for (int i = scope_level() - 1; i >= 0; i--) {
+        HASH_TABLE* table = stack_item(i);
+        if (!table) return NULL;
+        void* result = hash_table_lookup(table, name);
+        if (result != NULL) {
+            return (struct symbol*)result;
+        }
+    }
+    return NULL;
+}
+
+Foo(5);
+tt = 7
+
+def Foo(baz):
+    tt = 5
+    bar(7)
+    def fn1():
+        print(tt)
+
+def bar(bat):
+    print(tt)
