@@ -40,6 +40,7 @@ extern struct decl* parser_result;
 %type <type> func_type obj_type return_type param_type primitive_type
 %type <expr> expr initializer_opt initializer brace_initializer expr_opt args_opt args assig logic_or logic_and cmp addtv multv power unary postfix access primary
 %type <param_list> params_opt params_list param
+%type <integer_literal> array_size
 
 %token TOKEN_EOF 0             "end of file"
 %token TOKEN_ERROR             "lexical error"
@@ -124,38 +125,42 @@ obj_decl
 
 primitive_type
     : TOKEN_INTEGER_TYPE
-      { $$ = type_create(TYPE_INTEGER, 0, 0); }
+      { $$ = type_create(TYPE_INTEGER, 0, 0, 0, 0); }
     | TOKEN_DOUBLE_TYPE
-      { $$ = type_create(TYPE_DOUBLE, 0, 0); }
+      { $$ = type_create(TYPE_DOUBLE, 0, 0, 0, 0); }
     | TOKEN_BOOLEAN_TYPE
-      { $$ = type_create(TYPE_BOOLEAN, 0, 0); }
+      { $$ = type_create(TYPE_BOOLEAN, 0, 0, 0, 0); }
     | TOKEN_CHAR_TYPE
-      { $$ = type_create(TYPE_CHARACTER, 0, 0); }
+      { $$ = type_create(TYPE_CHARACTER, 0, 0, 0, 0); }
     | TOKEN_STRING_TYPE
-      { $$ = type_create(TYPE_STRING, 0, 0); }
+      { $$ = type_create(TYPE_STRING, 0, 0, 0, 0); }
     ;
 
 obj_type
     : primitive_type
     | TOKEN_AUTO
-      { $$ = type_create(TYPE_AUTO, 0, 0); }
-    | TOKEN_ARRAY  TOKEN_L_SQ_BRACKET expr TOKEN_R_SQ_BRACKET obj_type
-      { $$ = type_create(TYPE_ARRAY, $5, 0); }
-    | TOKEN_CARRAY TOKEN_L_SQ_BRACKET expr TOKEN_R_SQ_BRACKET obj_type
-      { $$ = type_create(TYPE_CARRAY, $5, 0); }  
+      { $$ = type_create(TYPE_AUTO, 0, 0, 0, 0); }
+    | TOKEN_ARRAY  TOKEN_L_SQ_BRACKET array_size TOKEN_R_SQ_BRACKET obj_type
+      { $$ = type_create(TYPE_ARRAY, $5, 0,$3, 1); }
+    | TOKEN_CARRAY TOKEN_L_SQ_BRACKET array_size TOKEN_R_SQ_BRACKET obj_type
+      { $$ = type_create(TYPE_CARRAY, $5, 0, $3, 1); }  
+    ;
+
+array_size:
+    TOKEN_INTEGER_LITERAL
     ;
 
 func_type
     : TOKEN_FUNCTION return_type TOKEN_LPAREN params_opt TOKEN_RPAREN
-        { $$ = type_create(TYPE_FUNCTION, $2, $4); }
+        { $$ = type_create(TYPE_FUNCTION, $2, $4, 0, 0); }
     ;
 
 return_type
     : primitive_type
     | TOKEN_AUTO
-      { $$ = type_create(TYPE_AUTO, 0, 0); }
+      { $$ = type_create(TYPE_AUTO, 0, 0, 0, 0); }
     | TOKEN_VOID
-      { $$ = type_create(TYPE_VOID, 0, 0); }
+      { $$ = type_create(TYPE_VOID, 0, 0, 0, 0); }
     ;
 
 params_opt
@@ -178,9 +183,9 @@ param
 param_type
     : primitive_type
     | TOKEN_ARRAY  TOKEN_L_SQ_BRACKET TOKEN_R_SQ_BRACKET param_type
-      { $$ = type_create(TYPE_ARRAY, $4, 0); }
+      { $$ = type_create(TYPE_ARRAY, $4, 0, 0, 0); }
     | TOKEN_CARRAY TOKEN_L_SQ_BRACKET TOKEN_R_SQ_BRACKET param_type
-      { $$ = type_create(TYPE_CARRAY, $4, 0); }
+      { $$ = type_create(TYPE_CARRAY, $4, 0, 0, 0); }
     | func_type
     ;
 
@@ -197,14 +202,14 @@ initializer_opt
 initializer
     : expr
     | TOKEN_LBRACE brace_initializer TOKEN_RBRACE
-        {$$ = expr_create_array_literal($2); }
+        {$$ = expr_create_array_init($2); }
     ;
 
 /* braced initlizers are nonempty & have no trailing comma */
 brace_initializer
     : initializer
-    | brace_initializer TOKEN_COMMA initializer
-        { $$ = expr_create_array_literal($3); $3->next = $1; }
+    |  initializer TOKEN_COMMA brace_initializer
+        { $$ = expr_create_array_item($1); $1->next = $3; }
     ;
 
 block

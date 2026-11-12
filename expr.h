@@ -6,7 +6,8 @@
 typedef enum {
 	EXPR_ADD,
 	EXPR_SUB,
-	EXPR_ARRAY_LITERAL,
+	EXPR_ARRAY_INIT,
+	EXPR_ARRAY_ITEM,
 	EXPR_CALL,
 	EXPR_ARG,
 	EXPR_ASSIGN,
@@ -47,6 +48,7 @@ struct expr {
 	/* used by various leaf exprs */
 	const char *name;
 	int literal_value;
+	double double_literal;
 	const char * string_literal;
 	struct symbol *symbol;
 	struct expr *next;  /* used for array literal elements */
@@ -61,8 +63,9 @@ struct expr * expr_create_boolean_literal( int c );
 struct expr * expr_create_char_literal( char c );
 struct expr * expr_create_string_literal( const char *str );
 // Added new one to deal with array literal
-struct expr * expr_create_array_literal( struct expr *elements );
+struct expr * expr_create_array_init( struct expr *elements );
+struct expr * expr_create_array_item( struct expr *element );
 
-void expr_print( struct expr *e );
+void expr_print( struct expr *e, int indent );
 
 #endif

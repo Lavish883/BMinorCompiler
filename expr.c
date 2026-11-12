@@ -13,9 +13,15 @@ struct expr* expr_create( expr_t kind, struct expr *left, struct expr *right ) {
     e->right = right;
     return e;
 }
-struct expr* expr_create_array_literal( struct expr *elements ) {
-    struct expr* e = expr_create(EXPR_ARRAY_LITERAL, NULL, NULL);
+struct expr* expr_create_array_init( struct expr *elements ) {
+    struct expr* e = expr_create(EXPR_ARRAY_INIT, NULL, NULL);
     e->next = elements;
+    return e;
+}
+
+struct expr* expr_create_array_item( struct expr *element ) {
+    struct expr* e = expr_create(EXPR_ARRAY_ITEM, NULL, NULL);
+    e->next = element;
     return e;
 }
 
@@ -33,7 +39,7 @@ struct expr* expr_create_integer_literal( int c ) {
 
 struct expr* expr_create_double_literal( double c ) {
     struct expr* e = expr_create(EXPR_DOUBLE_LITERAL, NULL, NULL);
-    e->literal_value = c;
+    e->double_literal = c;
     return e;
 }
 
@@ -53,4 +59,47 @@ struct expr* expr_create_string_literal( const char *str ) {
     struct expr* e = expr_create(EXPR_STRING_LITERAL, NULL, NULL);
     e->string_literal = str;
     return e;
+}
+
+void expr_print(struct expr* e, int indent) {
+    if (!e) return;
+    switch (e->kind) {
+        case (EXPR_NAME): {
+            printf("%s", e->name);
+            break;
+        }
+        case (EXPR_CHAR_LITERAL): {
+            printf("'%c'", e->literal_value);
+            break;
+        }
+        case (EXPR_INTEGER_LITERAL): {
+            printf("%d", e->literal_value);
+            break;
+        }
+        case (EXPR_DOUBLE_LITERAL): {
+            printf("%f", e->double_literal);
+        }
+        case (EXPR_BOOLEAN_LITERAL): {
+            printf("%s", e->literal_value ? "true" : "false");
+            break;
+        }
+        case (EXPR_STRING_LITERAL): {
+            printf("%s", e->string_literal);
+            break;
+        }
+        case (EXPR_ARRAY_INIT): {
+            printf("{ ");
+            expr_print(e->next, indent + 1);
+            printf(" }");
+            break;
+        }
+        case (EXPR_ARRAY_ITEM): {
+            expr_print(e->next, indent);
+            break;
+        }
+        default: {
+
+        }
+    }
+    //printf(" %d \n", e->kind);
 }

@@ -15,7 +15,7 @@ FLEX = flex
 BISON = bison
 
 ### NOTE: keep artifact the first recipe
-$(ARTIFACT): scanner.out.o parser.out.o main.o type.o expr.o stmt.o decl.o param_list.o
+$(ARTIFACT): scanner.out.o parser.out.o main.o type.o expr.o stmt.o decl.o param_list.o helpers.o
 	$(CC) $^ -o $@ -lm
 
 ### out recipes

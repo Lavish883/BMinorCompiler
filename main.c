@@ -60,8 +60,7 @@ int main(int argc, char* argv[]) {
 
         if (!had_error) {
             puts("parse successful");
-            for (struct decl *d = parser_result; d; d = d->next)
-                printf("%s\n", d->name);
+            decl_print(parser_result, 0);
         }
     }
 

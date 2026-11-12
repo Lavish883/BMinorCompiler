@@ -1,2 +1,6 @@
-BasedOnStyle: LLVM
+BasedOnStyle: Google
 IndentWidth: 4
+PointerAlignment: Left
+SortIncludes: Never
+ColumnLimit: 0
+SpacesBeforeTrailingComments: 1

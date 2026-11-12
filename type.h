@@ -2,6 +2,7 @@
 #define TYPE_H
 
 #include "param_list.h"
+#include <stdbool.h>
 
 typedef enum {
 	TYPE_VOID,
@@ -16,13 +17,17 @@ typedef enum {
 	TYPE_DOUBLE
 } type_t;
 
+extern char* type_to_str_mapping[];
+
 struct type {
 	type_t kind;
 	struct param_list *params;
 	struct type *subtype;
+	int array_size;
+	bool size_defined;
 };
 
-struct type * type_create( type_t kind, struct type *subtype, struct param_list *params );
-void          type_print( struct type *t );
+struct type * type_create( type_t kind, struct type *subtype, struct param_list *params, int array_size, bool size_defined);
+void          type_print( struct type *t, int indent );
 
 #endif
