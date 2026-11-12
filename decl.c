@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "decl.h"
 
 struct decl * decl_create( char *name, struct type *type, struct expr *value, struct stmt *code, struct decl *next ) {

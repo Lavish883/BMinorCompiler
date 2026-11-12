@@ -1,6 +1,7 @@
 %option yylineno
 %{
 #include "parser.out.h"
+#include <string.h>
 int get_string_token();
 int is_valid_multiline_comment();
 int get_ident_token();
@@ -124,6 +125,7 @@ int get_string_token() {
 
 int get_ident_token() {
     if (yyleng > 255) return scan_error("identifier longer than 255 characters", yylineno, 0);
+    yylval.str = strdup(yytext);
     return TOKEN_IDENT;
 }
 

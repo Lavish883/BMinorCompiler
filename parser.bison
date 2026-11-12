@@ -7,6 +7,10 @@ extern const char *input_filename;
 extern int yylineno;
 void print_scan_error(void);
 #include "decl.h"
+#include "type.h"
+#include "stmt.h"
+#include "expr.h"
+#include "param_list.h"
 extern struct decl* parser_result;
 %}
 
@@ -16,9 +20,25 @@ extern struct decl* parser_result;
 %expect 0
 %start program
 
+%union {
+  struct decl* decl;
+  struct stmt* stmt;
+  struct type* type;
+  struct expr* expr;
+  struct param_list* param_list;
+
+  char* str; 
+}
+
+%type <decl> program decl_list decl obj_decl
+%type <stmt> stmt block block_items matchd_stmt unmatchd_stmt
+%type <type> func_type obj_type return_type param_type primitive_type
+%type <expr> expr initializer_opt initializer brace_initializer
+%type <param_list> params_opt params_list param
+
 %token TOKEN_EOF 0             "end of file"
 %token TOKEN_ERROR             "lexical error"
-%token TOKEN_IDENT             "identifier"
+%token <str> TOKEN_IDENT             "identifier"
 %token TOKEN_INTEGER_LITERAL   "integer literal"
 %token TOKEN_DOUBLE_LITERAL    "double literal"
 %token TOKEN_CHAR_LITERAL      "character literal"
@@ -26,11 +46,11 @@ extern struct decl* parser_result;
 %token TOKEN_ARRAY             "array"
 %token TOKEN_CARRAY            "carray"
 %token TOKEN_AUTO              "auto"
-%token TOKEN_BOOLEAN_TYPE      "boolean"
-%token TOKEN_CHAR_TYPE         "char"
-%token TOKEN_DOUBLE_TYPE       "double"
-%token TOKEN_INTEGER_TYPE      "integer"
-%token TOKEN_STRING_TYPE       "string"
+%token <type> TOKEN_BOOLEAN_TYPE      "boolean"
+%token <type> TOKEN_CHAR_TYPE         "char"
+%token <type> TOKEN_DOUBLE_TYPE       "double"
+%token <type> TOKEN_INTEGER_TYPE      "integer"
+%token <type> TOKEN_STRING_TYPE       "string"
 %token TOKEN_VOID              "void"
 %token TOKEN_FUNCTION          "function"
 %token TOKEN_IF                "if"
@@ -71,15 +91,7 @@ extern struct decl* parser_result;
 %token TOKEN_NOT               "!"
 %token TOKEN_HASH              "#"
 
-%union {
-  struct decl* decl;
-  struct stmt* stmt;
-  char* name; 
-}
 
-%type <decl> program decl_list decl
-%type <stmt> stmt_list stmt
-%type <name> name
 %%
 
 program : decl_list
@@ -97,59 +109,74 @@ decl_list
 decl
     : obj_decl
     | TOKEN_IDENT TOKEN_COLON func_type TOKEN_SEMICOLON
-      { $$ = decl_create($1, $3, 0, 0, 0) }
+      { $$ = decl_create($1, $3, 0, 0, 0); }
     | TOKEN_IDENT TOKEN_COLON func_type TOKEN_ASSIGN block
-      { $$ = decl_create($1, $3, 0, $5, 0) }
+      { $$ = decl_create($1, $3, 0, $5, 0); }
     ;
 
 obj_decl
     : TOKEN_IDENT TOKEN_COLON obj_type initializer_opt TOKEN_SEMICOLON
-      { $$ = decl_create($1, $3, $4, 0, 0) }
+      { $$ = decl_create($1, $3, $4, 0, 0); }
     ;
 
 primitive_type
     : TOKEN_INTEGER_TYPE
+      { $$ = type_create(TYPE_INTEGER, 0, 0); }
     | TOKEN_DOUBLE_TYPE
+      { $$ = type_create(TYPE_DOUBLE, 0, 0); }
     | TOKEN_BOOLEAN_TYPE
+      { $$ = type_create(TYPE_BOOLEAN, 0, 0); }
     | TOKEN_CHAR_TYPE
+      { $$ = type_create(TYPE_CHARACTER, 0, 0); }
     | TOKEN_STRING_TYPE
+      { $$ = type_create(TYPE_STRING, 0, 0); }
     ;
 
 obj_type
     : primitive_type
     | TOKEN_AUTO
+      { $$ = type_create(TYPE_AUTO, 0, 0); }
     | TOKEN_ARRAY  TOKEN_L_SQ_BRACKET expr TOKEN_R_SQ_BRACKET obj_type
+      { $$ = type_create(TYPE_ARRAY, $5, 0); }
     | TOKEN_CARRAY TOKEN_L_SQ_BRACKET expr TOKEN_R_SQ_BRACKET obj_type
+      { $$ = type_create(TYPE_CARRAY, $5, 0); }  
     ;
 
 func_type
     : TOKEN_FUNCTION return_type TOKEN_LPAREN params_opt TOKEN_RPAREN
+        { $$ = type_create(TYPE_FUNCTION, $2, $4); }
     ;
 
 return_type
     : primitive_type
     | TOKEN_AUTO
+      { $$ = type_create(TYPE_AUTO, 0, 0); }
     | TOKEN_VOID
+      { $$ = type_create(TYPE_VOID, 0, 0); }
     ;
 
 params_opt
     : %empty
-    | params
+    | params_list
     ;
 
-params
+params_list
     : param
-    | params TOKEN_COMMA param
+    | param TOKEN_COMMA params_list
+      { $$ = $1; $1->next = $3; }
     ;
 
 param
     : TOKEN_IDENT TOKEN_COLON param_type
+      { $$ = param_list_create($1, $3, 0); }
     ;
 
 param_type
     : primitive_type
     | TOKEN_ARRAY  TOKEN_L_SQ_BRACKET TOKEN_R_SQ_BRACKET param_type
+      { $$ = type_create(TYPE_ARRAY, $4, 0); }
     | TOKEN_CARRAY TOKEN_L_SQ_BRACKET TOKEN_R_SQ_BRACKET param_type
+      { $$ = type_create(TYPE_CARRAY, $4, 0); }
     | func_type
     ;
 
@@ -158,30 +185,35 @@ param_type
  */
 initializer_opt
     : %empty
-      { $$ = 0 }
+      { $$ = 0; }
     | TOKEN_ASSIGN initializer
-      { $$ = $2 }
+      { $$ = $2; }
     ;
 
 initializer
     : expr
     | TOKEN_LBRACE brace_initializer TOKEN_RBRACE
+        {$$ = expr_create_array_literal($2); }
     ;
 
 /* braced initlizers are nonempty & have no trailing comma */
 brace_initializer
     : initializer
     | brace_initializer TOKEN_COMMA initializer
+        { $$ = expr_create_array_literal($3); $3->next = $1; }
     ;
 
 block
     : TOKEN_LBRACE block_items TOKEN_RBRACE
+      { $$ =  stmt_create(STMT_BLOCK, 0, 0, 0, 0, $2, 0, 0); }
     ;
 
 block_items
     : %empty
     | block_items obj_decl
+     {$$ = stmt_create(STMT_DECL, $2, 0, 0, 0, 0, 0, $1); }
     | block_items stmt
+     {$$ = $2; $2->next = $1; }
     ;
 
 /* obj_decl is a block item, never a bare if/else/for body (Q3.0) */
