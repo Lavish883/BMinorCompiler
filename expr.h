@@ -6,10 +6,36 @@
 typedef enum {
 	EXPR_ADD,
 	EXPR_SUB,
+	EXPR_ARRAY_LITERAL,
+	EXPR_CALL,
+	EXPR_ARG,
+	EXPR_ASSIGN,
+	EXPR_OR,
+	EXPR_AND,
+	EXPR_LESS,
+	EXPR_LESS_EQUAL,
+	EXPR_GREATER,
+	EXPR_GREATER_EQUAL,
+	EXPR_EQUAL,
+	EXPR_NOT_EQUAL,
 	EXPR_MUL,
 	EXPR_DIV,
-	EXPR_ARRAY_LITERAL,
-	/* many more kinds of exprs to add here */
+	EXPR_MODULO,
+	EXPR_POWER,
+	EXPR_POSITIVE,
+	EXPR_NEGATIVE,
+	EXPR_NOT,
+	EXPR_HASH,
+	EXPR_POST_INC,
+	EXPR_POST_DEC,
+	EXPR_ARRAY_ACCESS,
+	EXPR_EXPONENT,
+	EXPR_NAME,
+	EXPR_INTEGER_LITERAL,
+	EXPR_DOUBLE_LITERAL,
+	EXPR_BOOLEAN_LITERAL,
+	EXPR_CHAR_LITERAL,
+	EXPR_STRING_LITERAL,
 } expr_t;
 
 struct expr {
@@ -30,11 +56,13 @@ struct expr * expr_create( expr_t kind, struct expr *left, struct expr *right );
 
 struct expr * expr_create_name( const char *n );
 struct expr * expr_create_integer_literal( int c );
+struct expr * expr_create_double_literal( double c );
 struct expr * expr_create_boolean_literal( int c );
 struct expr * expr_create_char_literal( char c );
 struct expr * expr_create_string_literal( const char *str );
 // Added new one to deal with array literal
 struct expr * expr_create_array_literal( struct expr *elements );
+
 void expr_print( struct expr *e );
 
 #endif

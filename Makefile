@@ -30,7 +30,7 @@ parser.out.o: parser.out.c parser.out.h
 	$(BISON) -d -o $*.out.c $<
 
 %.o: %.c
-	$(CC) -c $< -o $@
+	$(CC) -g -c $< -o $@
 
 ### phony recipes
 .PHONY: zip FORCE_PHONY

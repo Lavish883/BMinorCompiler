@@ -21,22 +21,30 @@ carray                               { return TOKEN_CARRAY; }
 char                                 { return TOKEN_CHAR_TYPE; }
 else                                 { return TOKEN_ELSE; }
 double                               { return TOKEN_DOUBLE_TYPE; }
-false                                { return TOKEN_FALSE; }
-float                                { return TOKEN_FLOAT_TYPE; }
+false { 
+    yylval.boolean_literal = 0;
+    return TOKEN_FALSE; 
+}
 for                                  { return TOKEN_FOR; }
 if                                   { return TOKEN_IF; }
-while                                { return TOKEN_WHILE; }
 print                                { return TOKEN_PRINT; }
 return                               { return TOKEN_RETURN; }
 void                                 { return TOKEN_VOID; }
 integer                              { return TOKEN_INTEGER_TYPE; }
 string                               { return TOKEN_STRING_TYPE; }
 function                             { return TOKEN_FUNCTION; }
-true                                 { return TOKEN_TRUE; }
+true { 
+    yylval.boolean_literal = 1;
+    return TOKEN_TRUE; 
+}
 
 ({LETTER}|_)+({DIGIT}|{LETTER}|_)*       { return get_ident_token(); }
 
-\'([^\'\\\n]|\\.|\\0x{HEX_DIGIT}{2})\'                     { return TOKEN_CHAR_LITERAL; }
+\'([^\'\\\n]|\\.|\\0x{HEX_DIGIT}{2})\'       {
+    yylval.char_literal = yytext[1];
+    return TOKEN_CHAR_LITERAL;
+}
+
 \"([^\"\\\n]|\\.|\\0x{HEX_DIGIT}{2})*\"                   { return get_string_token(); }
     /* Punctuation */
 :                                    { return TOKEN_COLON; }
@@ -67,13 +75,33 @@ true                                 { return TOKEN_TRUE; }
 # { return TOKEN_HASH;}
 && {return TOKEN_AND;}
 \|\| {return TOKEN_OR;}
-0x{HEX_DIGIT}+            { return TOKEN_INTEGER_LITERAL; }
-0b(0|1)+                          { return TOKEN_INTEGER_LITERAL; }
-    /* Malformed 0x/0b literal (0x, 0x0x1, 0b012) */
-0[xb]({DIGIT}|{LETTER}|_)*           { return scan_error("malformed integer literal", yylineno, 1); }
-{DIGIT}+((\.){DIGIT}+)?(e|E)(\+|\-)?{DIGIT}+      { return TOKEN_DOUBLE_LITERAL; }
-{DIGIT}+                        { return TOKEN_INTEGER_LITERAL; }
-{DIGIT}+\.{DIGIT}+                { return TOKEN_DOUBLE_LITERAL; }
+
+0x{HEX_DIGIT}+   { 
+    yylval.integer_literal = strtol(yytext, NULL, 16);
+    return TOKEN_INTEGER_LITERAL; 
+}
+
+0b(0|1)+ { 
+    yylval.integer_literal = strtol(yytext, NULL, 2);
+    return TOKEN_INTEGER_LITERAL; 
+}
+
+0[xb]({DIGIT}|{LETTER}|_)*           { return scan_error("malformed integer literal", yylineno, 1); } /* Malformed 0x/0b literal (0x, 0x0x1, 0b012) */
+
+{DIGIT}+((\.){DIGIT}+)?(e|E)(\+|\-)?{DIGIT}+  { 
+    yylval.double_literal = strtod(yytext, NULL);
+    return TOKEN_DOUBLE_LITERAL; 
+}
+
+{DIGIT}+ { 
+    yylval.integer_literal = strtol(yytext, NULL, 10);
+    return TOKEN_INTEGER_LITERAL; 
+}
+
+{DIGIT}+\.{DIGIT}+ { 
+    yylval.double_literal = strtod(yytext, NULL);
+    return TOKEN_DOUBLE_LITERAL;
+}
 
 
 "//".*                               { /* Single line comment */}
@@ -120,12 +148,13 @@ int get_string_token() {
         return scan_error("string literal longer than 255 characters", yylineno, 0);
     }
     // printf("length %d\n", actual_str_length);
+    yylval.string_literal = strdup(yytext);
     return TOKEN_STRING_LITERAL;
 }
 
 int get_ident_token() {
     if (yyleng > 255) return scan_error("identifier longer than 255 characters", yylineno, 0);
-    yylval.str = strdup(yytext);
+    yylval.ident = strdup(yytext);
     return TOKEN_IDENT;
 }
 

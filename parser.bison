@@ -27,22 +27,27 @@ extern struct decl* parser_result;
   struct expr* expr;
   struct param_list* param_list;
 
-  char* str; 
+  char* ident; 
+  int integer_literal;
+  double double_literal;
+  char char_literal;
+  char* string_literal;
+  int boolean_literal;
 }
 
 %type <decl> program decl_list decl obj_decl
-%type <stmt> stmt block block_items matchd_stmt unmatchd_stmt
+%type <stmt> stmt block block_items matchd_stmt unmatchd_stmt for_headr
 %type <type> func_type obj_type return_type param_type primitive_type
-%type <expr> expr initializer_opt initializer brace_initializer
+%type <expr> expr initializer_opt initializer brace_initializer expr_opt args_opt args assig logic_or logic_and cmp addtv multv power unary postfix access primary
 %type <param_list> params_opt params_list param
 
 %token TOKEN_EOF 0             "end of file"
 %token TOKEN_ERROR             "lexical error"
-%token <str> TOKEN_IDENT             "identifier"
-%token TOKEN_INTEGER_LITERAL   "integer literal"
-%token TOKEN_DOUBLE_LITERAL    "double literal"
-%token TOKEN_CHAR_LITERAL      "character literal"
-%token TOKEN_STRING_LITERAL    "string literal"
+%token <ident> TOKEN_IDENT             "identifier"
+%token <integer_literal> TOKEN_INTEGER_LITERAL   "integer literal"
+%token <double_literal> TOKEN_DOUBLE_LITERAL    "double literal"
+%token <char_literal> TOKEN_CHAR_LITERAL      "character literal"
+%token <string_literal> TOKEN_STRING_LITERAL    "string literal"
 %token TOKEN_ARRAY             "array"
 %token TOKEN_CARRAY            "carray"
 %token TOKEN_AUTO              "auto"
@@ -58,10 +63,8 @@ extern struct decl* parser_result;
 %token TOKEN_FOR               "for"
 %token TOKEN_PRINT             "print"
 %token TOKEN_RETURN            "return"
-%token TOKEN_TRUE              "true"
-%token TOKEN_FALSE             "false"
-%token TOKEN_FLOAT_TYPE        "float"
-%token TOKEN_WHILE             "while"
+%token <boolean_literal> TOKEN_TRUE              "true"
+%token <boolean_literal> TOKEN_FALSE             "false"
 %token TOKEN_INCREMENT         "++"
 %token TOKEN_DECREMENT         "--"
 %token TOKEN_LESS_EQUAL        "<="
@@ -157,6 +160,7 @@ return_type
 
 params_opt
     : %empty
+    { $$ = 0; }
     | params_list
     ;
 
@@ -210,6 +214,7 @@ block
 
 block_items
     : %empty
+    { $$ = 0; }
     | block_items obj_decl
      {$$ = stmt_create(STMT_DECL, $2, 0, 0, 0, 0, 0, $1); }
     | block_items stmt
@@ -226,35 +231,48 @@ stmt
 matchd_stmt
     : block
     | expr TOKEN_SEMICOLON
+        {$$ = stmt_create(STMT_EXPR, 0, 0, $1, 0, 0, 0, 0); }
     | TOKEN_PRINT args_opt TOKEN_SEMICOLON
+        {$$ = stmt_create(STMT_PRINT, 0, 0, $2, 0, 0, 0, 0); }
     | TOKEN_RETURN expr_opt TOKEN_SEMICOLON
+        {$$ = stmt_create(STMT_RETURN, 0, 0, $2, 0, 0, 0, 0); }
     | TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN matchd_stmt TOKEN_ELSE matchd_stmt
+        {$$ = stmt_create(STMT_IF_ELSE, 0, 0, $3, 0, $5, $7, 0); }
     | for_headr matchd_stmt
+        {$$ = $1; $1->body = $2; }
     ;
 
 unmatchd_stmt
     : TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN stmt
+        {$$ = stmt_create(STMT_IF, 0, 0, $3, 0, $5, 0, 0); }
     | TOKEN_IF TOKEN_LPAREN expr TOKEN_RPAREN matchd_stmt TOKEN_ELSE unmatchd_stmt
+        {$$ = stmt_create(STMT_IF_ELSE, 0, 0, $3, 0, $5, $7, 0); }
     | for_headr unmatchd_stmt
+        {$$ = $1; $1->body = $2; }
     ;
 
 for_headr
     : TOKEN_FOR TOKEN_LPAREN expr_opt TOKEN_SEMICOLON expr_opt TOKEN_SEMICOLON expr_opt TOKEN_RPAREN
+        {$$ = stmt_create(STMT_FOR, 0, $3, $5, $7, 0, 0, 0); }
     ;
 
 expr_opt
     : %empty
+    { $$ = 0; }
     | expr
     ;
 
 args_opt
     : %empty
+    { $$ = 0; }
     | args
     ;
+
 
 args
     : expr
     | args TOKEN_COMMA expr
+      { $$ = expr_create(EXPR_ARG, $3, $1); }
     ;
 
 /* precedence encoded entirely by productions (low->high) */
@@ -265,76 +283,107 @@ expr
 assig
     : logic_or
     | logic_or TOKEN_ASSIGN assig
+    { $$ = expr_create(EXPR_ASSIGN, $1, $3); }
     ;
 
 logic_or
     : logic_and
     | logic_or TOKEN_OR logic_and
+    { $$ = expr_create(EXPR_OR, $1, $3); }
     ;
 
 logic_and
     : cmp
     | logic_and TOKEN_AND cmp
+    { $$ = expr_create(EXPR_AND, $1, $3); }
     ;
 
 cmp
     : addtv
     | cmp TOKEN_LESS addtv
+    { $$ = expr_create(EXPR_LESS, $1, $3); }
     | cmp TOKEN_LESS_EQUAL addtv
+    { $$ = expr_create(EXPR_LESS_EQUAL, $1, $3); }
     | cmp TOKEN_GREATER addtv
+    { $$ = expr_create(EXPR_GREATER, $1, $3); }
     | cmp TOKEN_GREATER_EQUAL addtv
+    { $$ = expr_create(EXPR_GREATER_EQUAL, $1, $3); }
     | cmp TOKEN_EQUAL addtv
+    { $$ = expr_create(EXPR_EQUAL, $1, $3); }
     | cmp TOKEN_NOT_EQUAL addtv
+    { $$ = expr_create(EXPR_NOT_EQUAL, $1, $3); }
     ;
 
 addtv
     : multv
     | addtv TOKEN_PLUS multv
+    { $$ = expr_create(EXPR_ADD, $1, $3); }
     | addtv TOKEN_MINUS multv
+    { $$ = expr_create(EXPR_SUB, $1, $3); }
     ;
 
 multv
     : power
     | multv TOKEN_MUL power
+    { $$ = expr_create(EXPR_MUL, $1, $3); }
     | multv TOKEN_DIV power
+    { $$ = expr_create(EXPR_DIV, $1, $3); }
     | multv TOKEN_MODULO power
+    { $$ = expr_create(EXPR_MODULO, $1, $3); }
     ;
 
 power
     : unary
     | unary TOKEN_EXPONENT power
+    { $$ = expr_create(EXPR_EXPONENT, $1, $3); }
     ;
 
 /* prefix operators nest right->left and bind more tightly than ^ */
 unary
     : postfix
     | TOKEN_PLUS unary
+    { $$ = expr_create(EXPR_POSITIVE, $2, 0); }
     | TOKEN_MINUS unary
+    { $$ = expr_create(EXPR_NEGATIVE, 0, $2); }
     | TOKEN_NOT unary
+    { $$ = expr_create(EXPR_NOT, $2, 0); }
     | TOKEN_HASH unary
+    { $$ = expr_create(EXPR_HASH, $2, 0); }
     ;
 
 postfix
     : access
     | postfix TOKEN_INCREMENT
+    { $$ = expr_create(EXPR_POST_INC, $1, 0); }
     | postfix TOKEN_DECREMENT
+    { $$ = expr_create(EXPR_POST_DEC, $1, 0); }
     ;
 
 access
     : primary
     | access TOKEN_L_SQ_BRACKET expr TOKEN_R_SQ_BRACKET
+    { $$ = expr_create(EXPR_ARRAY_ACCESS, $1, $3); }
     | access TOKEN_LPAREN args_opt TOKEN_RPAREN
+    { $$ = expr_create(EXPR_CALL, $1, $3); }
     ;
 
 primary
     : TOKEN_IDENT
+    { $$ = expr_create_name($1); }
     | TOKEN_INTEGER_LITERAL
+    { $$ = expr_create_integer_literal($1); }
     | TOKEN_DOUBLE_LITERAL
+    { $$ = expr_create_double_literal($1); }
     | TOKEN_CHAR_LITERAL
+    { $$ = expr_create_char_literal($1); }
     | TOKEN_STRING_LITERAL
+    { $$ = expr_create_string_literal($1); }
     | TOKEN_TRUE
+    { $$ = expr_create_boolean_literal(1); }
     | TOKEN_FALSE
+    { $$ = expr_create_boolean_literal(0); }
     | TOKEN_LPAREN expr TOKEN_RPAREN
+    { $$ = $2; }
     ;
 
 %%
@@ -375,8 +424,6 @@ const char *const token_names[] = {
     macro_tknzr(TOKEN_RETURN),
     macro_tknzr(TOKEN_TRUE),
     macro_tknzr(TOKEN_FALSE),
-    macro_tknzr(TOKEN_FLOAT_TYPE),
-    macro_tknzr(TOKEN_WHILE),
     macro_tknzr(TOKEN_INCREMENT),
     macro_tknzr(TOKEN_DECREMENT),
     macro_tknzr(TOKEN_LESS_EQUAL),
