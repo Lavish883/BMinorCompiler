@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include "decl.h"
 
 #include "parser.out.h"
 
@@ -10,6 +11,7 @@ extern int yylineno;
 int yylex(void);
 extern const char *const token_names[];
 void print_scan_error(void);
+struct decl* parser_result = NULL;
 
 int main(int argc, char* argv[]) {
     if (argc < 3) {

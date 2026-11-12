@@ -6,12 +6,15 @@ void yyerror(const char *message);
 extern const char *input_filename;
 extern int yylineno;
 void print_scan_error(void);
+#include "decl.h"
+extern struct decl* parser_result;
 %}
+
 
 %define parse.error verbose
 %define parse.lac full
 %expect 0
-%start transl_unit
+%start program
 
 %token TOKEN_EOF 0             "end of file"
 %token TOKEN_ERROR             "lexical error"
@@ -68,22 +71,40 @@ void print_scan_error(void);
 %token TOKEN_NOT               "!"
 %token TOKEN_HASH              "#"
 
+%union {
+  struct decl* decl;
+  struct stmt* stmt;
+  char* name; 
+}
+
+%type <decl> program decl_list decl
+%type <stmt> stmt_list stmt
+%type <name> name
 %%
 
-transl_unit
+program : decl_list
+      { parser_result = $1; }
+    ;
+
+decl_list
     : %empty
-    | transl_unit extern_decl
+      { $$ = 0; }
+    | decl decl_list
+      { $$ = $1; $1->next = $2; }
     ;
 
 /* only top level functions: blocks take obj_decl, so definitions can't nest */
-extern_decl
+decl
     : obj_decl
     | TOKEN_IDENT TOKEN_COLON func_type TOKEN_SEMICOLON
+      { $$ = decl_create($1, $3, 0, 0, 0) }
     | TOKEN_IDENT TOKEN_COLON func_type TOKEN_ASSIGN block
+      { $$ = decl_create($1, $3, 0, $5, 0) }
     ;
 
 obj_decl
-    : TOKEN_IDENT TOKEN_COLON obj_type initzr_opt TOKEN_SEMICOLON
+    : TOKEN_IDENT TOKEN_COLON obj_type initializer_opt TOKEN_SEMICOLON
+      { $$ = decl_create($1, $3, $4, 0, 0) }
     ;
 
 primitive_type
@@ -132,20 +153,25 @@ param_type
     | func_type
     ;
 
-initzr_opt
+/* opt means optional,
+ * this accounts for both declaration and initialization
+ */
+initializer_opt
     : %empty
-    | TOKEN_ASSIGN initzr
+      { $$ = 0 }
+    | TOKEN_ASSIGN initializer
+      { $$ = $2 }
     ;
 
-initzr
+initializer
     : expr
-    | TOKEN_LBRACE initzrs TOKEN_RBRACE
+    | TOKEN_LBRACE brace_initializer TOKEN_RBRACE
     ;
 
 /* braced initlizers are nonempty & have no trailing comma */
-initzrs
-    : initzr
-    | initzrs TOKEN_COMMA initzr
+brace_initializer
+    : initializer
+    | brace_initializer TOKEN_COMMA initializer
     ;
 
 block
