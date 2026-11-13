@@ -14,3 +14,13 @@ struct param_list * param_list_create( char *name, struct type *type, struct par
     p->next = next;
     return p;
 }
+
+void param_list_print( struct param_list *a, int indent ) {
+    if (!a) return;
+    printf("%s: ", a->name);
+    type_print(a->type, indent);
+    if (a->next) {
+        printf(", ");
+        param_list_print(a->next, indent);
+    }
+}

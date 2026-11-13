@@ -45,6 +45,14 @@ void stmt_print(struct stmt* s, int level) {
 		case STMT_DECL:
 			decl_print(s->decl, 0);	 // handles its own semicolon and newline
 			break;
+		case STMT_IF:
+			printf("if ( ");
+			expr_print(s->expr, 0);
+			printf(" ) {\n");
+			print_if_and_for_body(s->body, level + 1);
+			indent(level);
+			printf("}\n");
+			break;
 		case STMT_IF_ELSE:
 			printf("if ( ");
 			expr_print(s->expr, 0);

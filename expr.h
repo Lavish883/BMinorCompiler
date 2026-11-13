@@ -6,10 +6,6 @@
 typedef enum {
 	EXPR_ADD,
 	EXPR_SUB,
-	EXPR_ARRAY_INIT,
-	EXPR_ARRAY_ITEM,
-	EXPR_CALL,
-	EXPR_ARG,
 	EXPR_ASSIGN,
 	EXPR_OR,
 	EXPR_AND,
@@ -30,13 +26,16 @@ typedef enum {
 	EXPR_POST_INC,
 	EXPR_POST_DEC,
 	EXPR_ARRAY_ACCESS,
-	EXPR_EXPONENT,
 	EXPR_NAME,
 	EXPR_INTEGER_LITERAL,
 	EXPR_DOUBLE_LITERAL,
 	EXPR_BOOLEAN_LITERAL,
 	EXPR_CHAR_LITERAL,
 	EXPR_STRING_LITERAL,
+	EXPR_ARRAY_INIT,
+	EXPR_ARRAY_ITEM,
+	EXPR_CALL,
+	EXPR_ARG
 } expr_t;
 
 struct expr {
@@ -64,7 +63,7 @@ struct expr * expr_create_char_literal( char c );
 struct expr * expr_create_string_literal( const char *str );
 // Added new one to deal with array literal
 struct expr * expr_create_array_init( struct expr *elements );
-struct expr * expr_create_array_item( struct expr *element );
+struct expr * expr_create_array_item( struct expr *element, struct expr *next );
 
 void expr_print( struct expr *e, int indent );
 

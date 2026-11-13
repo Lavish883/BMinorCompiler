@@ -208,8 +208,9 @@ initializer
 /* braced initlizers are nonempty & have no trailing comma */
 brace_initializer
     : initializer
+        {$$ = expr_create_array_item($1, 0); }
     |  initializer TOKEN_COMMA brace_initializer
-        { $$ = expr_create_array_item($1); $1->next = $3; }
+        { $$ = expr_create_array_item($1, $3); }
     ;
 
 block
@@ -220,10 +221,10 @@ block
 block_items
     : %empty
     { $$ = 0; }
-    | block_items obj_decl
-     {$$ = stmt_create(STMT_DECL, $2, 0, 0, 0, 0, 0, $1); }
-    | block_items stmt
-     {$$ = $2; $2->next = $1; }
+    | obj_decl block_items
+     {$$ = stmt_create(STMT_DECL, $1, 0, 0, 0, 0, 0, $2); }
+    | stmt block_items
+     {$$ = $1; $1->next = $2; }
     ;
 
 /* obj_decl is a block item, never a bare if/else/for body (Q3.0) */
@@ -276,8 +277,8 @@ args_opt
 
 args
     : expr
-    | args TOKEN_COMMA expr
-      { $$ = expr_create(EXPR_ARG, $3, $1); }
+    | expr TOKEN_COMMA args
+      { $$ = expr_create(EXPR_ARG, $1, $3); }
     ;
 
 /* precedence encoded entirely by productions (low->high) */
@@ -340,7 +341,7 @@ multv
 power
     : unary
     | unary TOKEN_EXPONENT power
-    { $$ = expr_create(EXPR_EXPONENT, $1, $3); }
+    { $$ = expr_create(EXPR_POWER, $1, $3); }
     ;
 
 /* prefix operators nest right->left and bind more tightly than ^ */
@@ -349,7 +350,7 @@ unary
     | TOKEN_PLUS unary
     { $$ = expr_create(EXPR_POSITIVE, $2, 0); }
     | TOKEN_MINUS unary
-    { $$ = expr_create(EXPR_NEGATIVE, 0, $2); }
+    { $$ = expr_create(EXPR_NEGATIVE, $2, 0); }
     | TOKEN_NOT unary
     { $$ = expr_create(EXPR_NOT, $2, 0); }
     | TOKEN_HASH unary

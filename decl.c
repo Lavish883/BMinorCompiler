@@ -20,18 +20,18 @@ struct decl* decl_create(char* name, struct type* type, struct expr* value, stru
 
 void decl_print(struct decl* d, int indent) {
     if (!d) return;
-    printf("%s: ", d->name);
+    printf("%s : ", d->name);
     type_print(d->type, indent);
 
-    if (d->value != NULL) {
+    if (d->value != NULL && d->code == NULL) {
         printf(" = ");
         expr_print(d->value, indent);
         printf(";\n");
+    } else if (d->code != NULL) {
+        stmt_print(d->code, indent);
+    } else {
+        printf(";\n");
     }
     
-    if (d->code != NULL) {
-        stmt_print(d->code, indent);
-    }
-
     decl_print(d->next, indent);
 }

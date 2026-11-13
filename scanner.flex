@@ -77,12 +77,12 @@ true {
 \|\| {return TOKEN_OR;}
 
 0x{HEX_DIGIT}+   { 
-    yylval.integer_literal = strtol(yytext, NULL, 16);
+    yylval.integer_literal = strtol(yytext + 2, NULL, 16);
     return TOKEN_INTEGER_LITERAL; 
 }
 
 0b(0|1)+ { 
-    yylval.integer_literal = strtol(yytext, NULL, 2);
+    yylval.integer_literal = strtol(yytext + 2, NULL, 2);
     return TOKEN_INTEGER_LITERAL; 
 }
 

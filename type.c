@@ -10,8 +10,10 @@ char* type_to_str_mapping[] = {
     "string",
     "array",
     "function",
+    "auto",
     "carray",
-    "double"};
+    "double"
+};
 
 struct type* type_create(type_t kind, struct type* subtype, struct param_list* params, int array_size, bool size_defined) {
     struct type* t = malloc(sizeof(struct type));
@@ -37,5 +39,13 @@ void type_print(struct type* t, int indent) {
         }
         printf("] ");
     }
+    if (t->subtype != NULL) {
+        printf(" ");
+    }
     type_print(t->subtype, indent);
+    if (t->kind == TYPE_FUNCTION) {
+        printf(" (");
+        param_list_print(t->params, indent);
+        printf(") = \n");
+    }
 }
