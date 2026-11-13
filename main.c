@@ -19,12 +19,13 @@ int main(int argc, char* argv[]) {
             "Usage:\n"
                 "\t%s --scan BMINOR_SOURCE_FILE\n"
                 "\t%s --parse BMINOR_SOURCE_FILE\n"
-        , argv[0], argv[0]);
+                "\t%s --print BMINOR_SOURCE_FILE\n"
+        , argv[0], argv[0], argv[0]);
         return 1;
     }
 
-    if (strcmp(argv[1], "--scan") != 0 && strcmp(argv[1], "--parse") != 0) {
-        fprintf(stderr, "%s: unknown option '%s' (expected --scan or --parse)\n", argv[0], argv[1]);
+    if (strcmp(argv[1], "--scan") != 0 && strcmp(argv[1], "--parse") != 0 && strcmp(argv[1], "--print") != 0) {
+        fprintf(stderr, "%s: unknown option '%s' (expected --scan or --parse or --print)\n", argv[0], argv[1]);
         return 1;
     }
     #define file_name argv[2]
@@ -57,10 +58,18 @@ int main(int argc, char* argv[]) {
             perror(argv[2]);
             had_error = 1;
         }
+    }
+
+    if (strcmp(argv[1], "--print") == 0) {
+        had_error = yyparse() != 0;
 
         if (!had_error) {
-            printf("// Parsed successfully\n");
             decl_print(parser_result, 0);
+        }
+
+        if (fclose(yyin) == EOF) {
+            perror(argv[2]);
+            had_error = 1;
         }
     }
 

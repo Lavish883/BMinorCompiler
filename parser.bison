@@ -141,13 +141,15 @@ obj_type
     | TOKEN_AUTO
       { $$ = type_create(TYPE_AUTO, 0, 0, 0, 0); }
     | TOKEN_ARRAY  TOKEN_L_SQ_BRACKET array_size TOKEN_R_SQ_BRACKET obj_type
-      { $$ = type_create(TYPE_ARRAY, $5, 0,$3, 1); }
+      { $$ = type_create(TYPE_ARRAY, $5, 0, $3, 1); }
     | TOKEN_CARRAY TOKEN_L_SQ_BRACKET array_size TOKEN_R_SQ_BRACKET obj_type
       { $$ = type_create(TYPE_CARRAY, $5, 0, $3, 1); }  
     ;
 
 array_size:
-    TOKEN_INTEGER_LITERAL
+    %empty
+    { $$ = NOT_DEFINED_LENGTH_MAGIC_NUMBER; }
+    | TOKEN_INTEGER_LITERAL
     ;
 
 func_type
@@ -389,7 +391,7 @@ primary
     | TOKEN_FALSE
     { $$ = expr_create_boolean_literal(0); }
     | TOKEN_LPAREN expr TOKEN_RPAREN
-    { $$ = $2; }
+    { $$ = expr_create(EXPR_GROUP, $2, 0); }
     ;
 
 %%

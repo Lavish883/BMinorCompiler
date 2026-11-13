@@ -147,7 +147,7 @@ void expr_print(struct expr* e, int indent) {
             break;
         }
         case (EXPR_DOUBLE_LITERAL): {
-            printf(".17%g", e->double_literal);
+            printf("%.15g", e->double_literal);
             break;
         }
         case (EXPR_BOOLEAN_LITERAL): {
@@ -156,6 +156,12 @@ void expr_print(struct expr* e, int indent) {
         }
         case (EXPR_STRING_LITERAL): {
             printf("%s", e->string_literal);
+            break;
+        }
+        case (EXPR_GROUP): {
+            printf("(");
+            expr_print(e->left, indent);
+            printf(")");
             break;
         }
         // assume binary operator or unary operator

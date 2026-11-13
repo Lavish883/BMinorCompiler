@@ -28,6 +28,7 @@ void decl_print(struct decl* d, int indent) {
         expr_print(d->value, indent);
         printf(";\n");
     } else if (d->code != NULL) {
+        printf(" = \n");
         stmt_print(d->code, indent);
     } else {
         printf(";\n");

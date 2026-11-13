@@ -1,5 +1,6 @@
 #ifndef TYPE_H
 #define TYPE_H
+#define NOT_DEFINED_LENGTH_MAGIC_NUMBER -8080
 
 #include "param_list.h"
 #include <stdbool.h>

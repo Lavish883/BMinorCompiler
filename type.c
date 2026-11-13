@@ -25,7 +25,7 @@ struct type* type_create(type_t kind, struct type* subtype, struct param_list* p
     t->subtype = subtype;
     t->params = params;
     t->array_size = array_size;
-    t->size_defined = size_defined;
+    t->size_defined = array_size == NOT_DEFINED_LENGTH_MAGIC_NUMBER ? false : size_defined;
     return t;
 }
 
@@ -46,6 +46,6 @@ void type_print(struct type* t, int indent) {
     if (t->kind == TYPE_FUNCTION) {
         printf(" (");
         param_list_print(t->params, indent);
-        printf(") = \n");
+        printf(") ");
     }
 }
