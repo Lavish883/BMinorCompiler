@@ -1,0 +1,2 @@
+// a double in scientific notation also needs an integer component before the period
+.5e3
