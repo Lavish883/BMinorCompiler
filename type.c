@@ -15,7 +15,7 @@ char* type_to_str_mapping[] = {
     "double"
 };
 
-struct type* type_create(type_t kind, struct type* subtype, struct param_list* params, int array_size, bool size_defined) {
+struct type* type_create(type_t kind, struct type* subtype, struct param_list* params, long long array_size, bool size_defined) {
     struct type* t = malloc(sizeof(struct type));
     if (!t) {
         printf("Error: failed to allocate memory for type\n");
@@ -25,7 +25,7 @@ struct type* type_create(type_t kind, struct type* subtype, struct param_list* p
     t->subtype = subtype;
     t->params = params;
     t->array_size = array_size;
-    t->size_defined = array_size == NOT_DEFINED_LENGTH_MAGIC_NUMBER ? false : size_defined;
+    t->size_defined = size_defined;
     return t;
 }
 
@@ -35,9 +35,9 @@ void type_print(struct type* t, int indent) {
     if (t->kind == TYPE_CARRAY || t->kind == TYPE_ARRAY) {
         printf(" [");
         if (t->size_defined) {
-            printf("%d", t->array_size);
+            printf("%lld", t->array_size);
         }
-        printf("] ");
+        printf("]");
     }
     if (t->subtype != NULL) {
         printf(" ");
@@ -46,6 +46,6 @@ void type_print(struct type* t, int indent) {
     if (t->kind == TYPE_FUNCTION) {
         printf(" (");
         param_list_print(t->params, indent);
-        printf(") ");
+        printf(")");
     }
 }

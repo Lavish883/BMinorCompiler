@@ -1,6 +1,5 @@
 #ifndef TYPE_H
 #define TYPE_H
-#define NOT_DEFINED_LENGTH_MAGIC_NUMBER -8080
 
 #include "param_list.h"
 #include <stdbool.h>
@@ -24,11 +23,11 @@ struct type {
 	type_t kind;
 	struct param_list *params;
 	struct type *subtype;
-	int array_size;
+	long long array_size;
 	bool size_defined;
 };
 
-struct type * type_create( type_t kind, struct type *subtype, struct param_list *params, int array_size, bool size_defined);
+struct type * type_create( type_t kind, struct type *subtype, struct param_list *params, long long array_size, bool size_defined);
 void          type_print( struct type *t, int indent );
 
 #endif
