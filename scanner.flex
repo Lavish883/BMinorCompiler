@@ -2,9 +2,14 @@
 %{
 #include "parser.out.h"
 #include <string.h>
+#include <errno.h>
+#include <math.h>
 int get_string_token();
 int is_valid_multiline_comment();
 int get_ident_token();
+int get_integer_token(const char *digits, int base);
+int get_double_token();
+static char decode_char_literal(const char *text);
 static int scan_error(const char *reason, int line, int show_text);
 %}
 DIGIT [0-9]
@@ -23,10 +28,12 @@ else                                 { return TOKEN_ELSE; }
 double                               { return TOKEN_DOUBLE_TYPE; }
 false { 
     yylval.boolean_literal = 0;
-    return TOKEN_FALSE; 
+    return TOKEN_FALSE;
 }
+float                                { return TOKEN_FLOAT_TYPE; }
 for                                  { return TOKEN_FOR; }
 if                                   { return TOKEN_IF; }
+while                                { return TOKEN_WHILE; }
 print                                { return TOKEN_PRINT; }
 return                               { return TOKEN_RETURN; }
 void                                 { return TOKEN_VOID; }
@@ -41,7 +48,7 @@ true {
 ({LETTER}|_)+({DIGIT}|{LETTER}|_)*       { return get_ident_token(); }
 
 \'([^\'\\\n]|\\.|\\0x{HEX_DIGIT}{2})\'       {
-    yylval.char_literal = yytext[1];
+    yylval.char_literal = decode_char_literal(yytext);
     return TOKEN_CHAR_LITERAL;
 }
 
@@ -76,32 +83,17 @@ true {
 && {return TOKEN_AND;}
 \|\| {return TOKEN_OR;}
 
-0x{HEX_DIGIT}+   { 
-    yylval.integer_literal = strtol(yytext + 2, NULL, 16);
-    return TOKEN_INTEGER_LITERAL; 
-}
+0x{HEX_DIGIT}+   { return get_integer_token(yytext + 2, 16); }
 
-0b(0|1)+ { 
-    yylval.integer_literal = strtol(yytext + 2, NULL, 2);
-    return TOKEN_INTEGER_LITERAL; 
-}
+0b(0|1)+ { return get_integer_token(yytext + 2, 2); }
 
 0[xb]({DIGIT}|{LETTER}|_)*           { return scan_error("malformed integer literal", yylineno, 1); } /* Malformed 0x/0b literal (0x, 0x0x1, 0b012) */
 
-{DIGIT}+((\.){DIGIT}+)?(e|E)(\+|\-)?{DIGIT}+  { 
-    yylval.double_literal = strtod(yytext, NULL);
-    return TOKEN_DOUBLE_LITERAL; 
-}
+{DIGIT}+((\.){DIGIT}+)?(e|E)(\+|\-)?{DIGIT}+  { return get_double_token(); }
 
-{DIGIT}+ { 
-    yylval.integer_literal = strtol(yytext, NULL, 10);
-    return TOKEN_INTEGER_LITERAL; 
-}
+{DIGIT}+ { return get_integer_token(yytext, 10); }
 
-{DIGIT}+\.{DIGIT}+ { 
-    yylval.double_literal = strtod(yytext, NULL);
-    return TOKEN_DOUBLE_LITERAL;
-}
+{DIGIT}+\.{DIGIT}+ { return get_double_token(); }
 
 
 "//".*                               { /* Single line comment */}
@@ -156,6 +148,45 @@ int get_ident_token() {
     if (yyleng > 255) return scan_error("identifier longer than 255 characters", yylineno, 0);
     yylval.ident = strdup(yytext);
     return TOKEN_IDENT;
+}
+
+/* integers are signed 64-bit */
+int get_integer_token(const char *digits, int base) {
+    errno = 0;
+    yylval.integer_literal = strtoll(digits, NULL, base);
+    if (errno == ERANGE) return scan_error("integer literal out of range", yylineno, 1);
+    return TOKEN_INTEGER_LITERAL;
+}
+
+/* keeps both value and source text, so the printer can make a canonical version */
+int get_double_token() {
+    yylval.double_literal.value = strtod(yytext, NULL);
+    if (isinf(yylval.double_literal.value)) return scan_error("double literal out of range", yylineno, 1);
+    yylval.double_literal.text = strdup(yytext);
+    return TOKEN_DOUBLE_LITERAL;
+}
+
+static char decode_char_literal(const char *text) {
+    const char *p = text + 1;
+    // not an escape: the char itself
+    if (*p != '\\') {
+        return *p;
+    }
+    switch (*++p) {
+        case 'a': return 7;
+        case 'b': return 8;
+        case 'e': return 27;
+        case 'f': return 12;
+        case 'n': return 10;
+        case 'r': return 13;
+        case 't': return 9;
+        case 'v': return 11;
+        case '0': if (p[1] == 'x') {
+                    return (char) strtol(p + 2, NULL, 16);
+                  }
+                  return '0';
+        default:  return *p; /* \\ \' \" and any char */
+    }
 }
 
 /* why the last TOKEN_ERROR was returned, for print_scan_error() */

@@ -28,8 +28,8 @@ extern struct decl* parser_result;
   struct param_list* param_list;
 
   char* ident; 
-  int integer_literal;
-  double double_literal;
+  long long integer_literal;
+  struct { double value; char* text; } double_literal;
   char char_literal;
   char* string_literal;
   int boolean_literal;
@@ -40,7 +40,6 @@ extern struct decl* parser_result;
 %type <type> func_type obj_type return_type param_type primitive_type
 %type <expr> expr initializer_opt initializer brace_initializer expr_opt args_opt args assig logic_or logic_and cmp addtv multv power unary postfix access primary
 %type <param_list> params_opt params_list param
-%type <integer_literal> array_size
 
 %token TOKEN_EOF 0             "end of file"
 %token TOKEN_ERROR             "lexical error"
@@ -66,6 +65,8 @@ extern struct decl* parser_result;
 %token TOKEN_RETURN            "return"
 %token <boolean_literal> TOKEN_TRUE              "true"
 %token <boolean_literal> TOKEN_FALSE             "false"
+%token TOKEN_FLOAT_TYPE        "float"
+%token TOKEN_WHILE             "while"
 %token TOKEN_INCREMENT         "++"
 %token TOKEN_DECREMENT         "--"
 %token TOKEN_LESS_EQUAL        "<="
@@ -140,16 +141,16 @@ obj_type
     : primitive_type
     | TOKEN_AUTO
       { $$ = type_create(TYPE_AUTO, 0, 0, 0, 0); }
-    | TOKEN_ARRAY  TOKEN_L_SQ_BRACKET array_size TOKEN_R_SQ_BRACKET obj_type
+    /* the size may be omitted here, as in the textbook's tests; the spec requires a
+     * positive size outside parameters (Q2.5), which the typechecker must enforce */
+    | TOKEN_ARRAY  TOKEN_L_SQ_BRACKET TOKEN_R_SQ_BRACKET obj_type
+      { $$ = type_create(TYPE_ARRAY, $4, 0, 0, 0); }
+    | TOKEN_ARRAY  TOKEN_L_SQ_BRACKET TOKEN_INTEGER_LITERAL TOKEN_R_SQ_BRACKET obj_type
       { $$ = type_create(TYPE_ARRAY, $5, 0, $3, 1); }
-    | TOKEN_CARRAY TOKEN_L_SQ_BRACKET array_size TOKEN_R_SQ_BRACKET obj_type
-      { $$ = type_create(TYPE_CARRAY, $5, 0, $3, 1); }  
-    ;
-
-array_size:
-    %empty
-    { $$ = NOT_DEFINED_LENGTH_MAGIC_NUMBER; }
-    | TOKEN_INTEGER_LITERAL
+    | TOKEN_CARRAY TOKEN_L_SQ_BRACKET TOKEN_R_SQ_BRACKET obj_type
+      { $$ = type_create(TYPE_CARRAY, $4, 0, 0, 0); }
+    | TOKEN_CARRAY TOKEN_L_SQ_BRACKET TOKEN_INTEGER_LITERAL TOKEN_R_SQ_BRACKET obj_type
+      { $$ = type_create(TYPE_CARRAY, $5, 0, $3, 1); }
     ;
 
 func_type
@@ -381,7 +382,7 @@ primary
     | TOKEN_INTEGER_LITERAL
     { $$ = expr_create_integer_literal($1); }
     | TOKEN_DOUBLE_LITERAL
-    { $$ = expr_create_double_literal($1); }
+    { $$ = expr_create_double_literal($1.value, $1.text); }
     | TOKEN_CHAR_LITERAL
     { $$ = expr_create_char_literal($1); }
     | TOKEN_STRING_LITERAL
@@ -432,6 +433,8 @@ const char *const token_names[] = {
     macro_tknzr(TOKEN_RETURN),
     macro_tknzr(TOKEN_TRUE),
     macro_tknzr(TOKEN_FALSE),
+    macro_tknzr(TOKEN_FLOAT_TYPE),
+    macro_tknzr(TOKEN_WHILE),
     macro_tknzr(TOKEN_INCREMENT),
     macro_tknzr(TOKEN_DECREMENT),
     macro_tknzr(TOKEN_LESS_EQUAL),
