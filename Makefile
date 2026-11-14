@@ -1,6 +1,6 @@
 
 ### assignment number
-ASSIGN = 2
+ASSIGN = 3
 
 ### strict flags for develompent and testing
 # CC       = gcc -std=c17 -Wall -Wextra -Weverything -Wno-unsafe-buffer-usage -Wno-unused-macros -Wno-pre-c11-compat -Wno-declaration-after-statement -Wno-unused-const-variable -pedantic -Wc11-extensions -fno-gnu89-inline
@@ -37,7 +37,7 @@ parser.out.o: parser.out.c parser.out.h
 FORCE_PHONY: # turn phony into a dependency
 
 ### NOTE: change this to match the current assignment
-test: test_parse FORCE_PHONY
+test: test_print FORCE_PHONY
 
 ### NOTE: auto generate all tests like "test_scanner", "test_parser", etc
 test_%: tests/% $(ARTIFACT) FORCE_PHONY
@@ -52,9 +52,14 @@ rebuild: FORCE_PHONY
 	$(MAKE) clean
 	$(MAKE)
 
+### all sources the build needs
+SOURCES = main.c decl.c expr.c stmt.c type.c param_list.c helpers.c
+HEADERS = decl.h expr.h stmt.h type.h param_list.h helpers.h symbol.h
+
 ZIPNAME = Group1_CC_A$(ASSIGN)
-zip: Makefile main.c scanner.flex parser.bison tests README.md
+zip: Makefile $(SOURCES) $(HEADERS) scanner.flex parser.bison tests README.md
 	rm -r $(ZIPNAME) $(ZIPNAME).zip || true
 	mkdir $(ZIPNAME)
 	cp -r $^ $(ZIPNAME)
+	find $(ZIPNAME) -type f -name '*.out' -delete
 	zip -r $(ZIPNAME).zip $(ZIPNAME)
