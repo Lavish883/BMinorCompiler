@@ -58,6 +58,10 @@ int main(int argc, char* argv[]) {
             perror(argv[2]);
             had_error = 1;
         }
+
+        if (!had_error) {
+            printf("Parsing completed successfully.\n");
+        }
     }
 
     if (strcmp(argv[1], "--print") == 0) {

@@ -1,0 +1,8 @@
+// integer literals inside declarations and expressions
+h: integer = 0x1F;
+b: integer = 0b101;
+a: array [3] integer = {0x0, 0xabCD, 0b1};
+main: function integer () = {
+	print 0xFF + 0b10, "\n";
+	return 0x0;
+}

@@ -1,0 +1,4 @@
+x:double = 1.230123;
+y:double = 1.23E-7;
+z:double = 1.23e-7;
+

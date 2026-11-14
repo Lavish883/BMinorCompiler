@@ -1,0 +1,19 @@
+/* Char literals with every escape code in the spec. */
+
+bell: char = '\a';
+backspace: char = '\b';
+escape: char = '\e';
+formfeed: char = '\f';
+newline: char = '\n';
+creturn: char = '\r';
+tab: char = '\t';
+vtab: char = '\v';
+backslash: char = '\\';
+squote: char = '\'';
+dquote: char = '\"';
+hex: char = '\0x41';
+nul: char = '\0x00';
+del: char = '\0x7f';
+zero: char = '\0';
+other: char = '\q';
+plain: char = '"';
