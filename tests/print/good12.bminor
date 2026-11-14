@@ -1,0 +1,14 @@
+/* Escaped chars and strings inside arrays, expressions, calls and print. */
+
+seps: array [3] char = {'\t', '\n', '\0x2c'};
+
+isspace: function boolean ( c: char ) = {
+    return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+}
+
+main: function integer () = {
+    q: char = '\'';
+    if( isspace('\n') && q != '\\' ) print "quote: ", q, '\n';
+    print "tab\there \"quoted\" \0x41\\\n";
+    return 0;
+}
