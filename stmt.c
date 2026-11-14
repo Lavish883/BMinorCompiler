@@ -46,17 +46,17 @@ void stmt_print(struct stmt* s, int level) {
 			decl_print(s->decl, 0);	 // handles its own semicolon and newline
 			break;
 		case STMT_IF:
-			printf("if ( ");
+			printf("if (");
 			expr_print(s->expr, 0);
-			printf(" ) {\n");
+			printf(") {\n");
 			print_if_and_for_body(s->body, level + 1);
 			indent(level);
 			printf("}\n");
 			break;
 		case STMT_IF_ELSE:
-			printf("if ( ");
+			printf("if (");
 			expr_print(s->expr, 0);
-			printf(" ) {\n");
+			printf(") {\n");
 			print_if_and_for_body(s->body, level + 1);
 			indent(level);
 			printf("}");
@@ -69,25 +69,38 @@ void stmt_print(struct stmt* s, int level) {
 			printf("\n");
 			break;
 		case STMT_FOR:
-			printf("for ( ");
+			// "for (i = 0; i < 10; i++)", and "for (;;)" when all parts are empty
+			printf("for (");
 			if (s->init_expr) expr_print(s->init_expr, 0);
-			printf("; ");
-			if (s->expr) expr_print(s->expr, 0);
-			printf("; ");
-			if (s->next_expr) expr_print(s->next_expr, 0);
-			printf(" ) {\n");
+			printf(";");
+			if (s->expr) {
+				printf(" ");
+				expr_print(s->expr, 0);
+			}
+			printf(";");
+			if (s->next_expr) {
+				printf(" ");
+				expr_print(s->next_expr, 0);
+			}
+			printf(") {\n");
 			print_if_and_for_body(s->body, level + 1);
 			indent(level);
 			printf("}\n");
 			break;
 		case STMT_PRINT:
-			printf("print ");
-			expr_print(s->expr, 0);
+			printf("print");
+			if (s->expr) {
+				printf(" ");
+				expr_print(s->expr, 0);
+			}
 			printf(";\n");
 			break;
 		case STMT_RETURN:
-			printf("return ");
-			if (s->expr) expr_print(s->expr, 0);
+			printf("return");
+			if (s->expr) {
+				printf(" ");
+				expr_print(s->expr, 0);
+			}
 			printf(";\n");
 			break;
 		case STMT_BLOCK:

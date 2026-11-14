@@ -14,13 +14,14 @@ struct decl* decl_create(char* name, struct type* type, struct expr* value, stru
     d->type = type;
     d->value = value;
     d->code = code;
+    d->symbol = NULL;
     d->next = next;
     return d;
 }
 
 void decl_print(struct decl* d, int indent) {
     if (!d) return;
-    printf("%s : ", d->name);
+    printf("%s: ", d->name);
     type_print(d->type, indent);
 
     if (d->value != NULL && d->code == NULL) {
@@ -28,7 +29,7 @@ void decl_print(struct decl* d, int indent) {
         expr_print(d->value, indent);
         printf(";\n");
     } else if (d->code != NULL) {
-        printf(" = \n");
+        printf(" =\n");
         stmt_print(d->code, indent);
     } else {
         printf(";\n");
