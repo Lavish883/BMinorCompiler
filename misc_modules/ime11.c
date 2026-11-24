@@ -9,9 +9,14 @@ void type_delete(struct type *t);
 
 bool type_equals(struct type *a, struct type *b)
 {
-    // invalid pointers
-    if (a == NULL || b == NULL) {
-        abort();
+    if (a == NULL && b == NULL) {
+        return true;
+    }
+    if ((a != NULL && b == NULL) || (a == NULL && b != NULL) {
+        return false;
+    }
+    if ((a != NULL && b == NULL) || (a == NULL && b != NULL) {
+        return false;
     }
     // different root types
     if (a->kind != b->kind) {
