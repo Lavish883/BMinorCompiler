@@ -1,8 +1,3 @@
-struct stack {
-    void** items;
-    int capacity;
-    int top;
-};
 
 struct stack* stack_create() {
     struct stack* stk = (struct stack*)malloc(sizeof(struct stack));
