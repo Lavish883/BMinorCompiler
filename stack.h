@@ -1,9 +1,14 @@
+struct stack {
+    void** items;
+    int capacity;
+    int top;
+};
 
-stack* stack_create();
+struct stack* stack_create();
 // arbitrary capacity
-void stack_push(stack* stk, void* item);
-void* stack_pop(stack* stk);
-size_t stack_size(stack* stk);
+void stack_push(struct stack* stk, void* item);
+void* stack_pop(struct stack* stk);
+size_t stack_size(struct stack* stk);
 // # of items on stack
 void* stack_item(size_t position);
 /* Returns a pointer to the item at the specified
