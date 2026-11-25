@@ -60,7 +60,7 @@ struct expr* expr_create_boolean_literal(int c) {
 
 struct expr* expr_create_char_literal(char c) {
     struct expr* e = expr_create(EXPR_CHAR_LITERAL, NULL, NULL);
-    e->literal_value = (unsigned char)c;  // 0..255 whether char is signed or not
+    e->literal_value = (unsigned char)c; // 0..255 whether char is signed or not
     return e;
 }
 
@@ -88,7 +88,7 @@ char* binary_operators_string[] = {
     "%",
     "^"};
 
-// The space for "- -x" != "--x" 
+// The space for "- -x" != "--x"
 char* unary_operators_string[] = {
     "+ ",
     "- ",
@@ -97,20 +97,43 @@ char* unary_operators_string[] = {
 
 static void expr_print_char_literal(unsigned char c) {
     switch (c) {
-        case 7: printf("'\\a'"); return;
-        case 8: printf("'\\b'"); return;
-        case 27: printf("'\\e'"); return;
-        case 12: printf("'\\f'"); return;
-        case 10: printf("'\\n'"); return;
-        case 13: printf("'\\r'"); return;
-        case 9: printf("'\\t'"); return;
-        case 11: printf("'\\v'"); return;
-        case '\\': printf("'\\\\'"); return;
-        case '\'': printf("'\\''"); return;
-        default: break;
+        case 7:
+            printf("'\\a'");
+            return;
+        case 8:
+            printf("'\\b'");
+            return;
+        case 27:
+            printf("'\\e'");
+            return;
+        case 12:
+            printf("'\\f'");
+            return;
+        case 10:
+            printf("'\\n'");
+            return;
+        case 13:
+            printf("'\\r'");
+            return;
+        case 9:
+            printf("'\\t'");
+            return;
+        case 11:
+            printf("'\\v'");
+            return;
+        case '\\':
+            printf("'\\\\'");
+            return;
+        case '\'':
+            printf("'\\''");
+            return;
+        default:
+            break;
     }
-    if (c >= 32 && c < 127) printf("'%c'", c);
-    else printf("'\\0x%02x'", c);
+    if (c >= 32 && c < 127)
+        printf("'%c'", c);
+    else
+        printf("'\\0x%02x'", c);
 }
 
 static void expr_print_double_literal(const char* s) {
@@ -186,7 +209,7 @@ void expr_print(struct expr* e, int indent) {
             break;
         }
         case (EXPR_CHAR_LITERAL): {
-            expr_print_char_literal((unsigned char) e->literal_value);
+            expr_print_char_literal((unsigned char)e->literal_value);
             break;
         }
         case (EXPR_INTEGER_LITERAL): {
@@ -225,4 +248,14 @@ void expr_print(struct expr* e, int indent) {
         }
     }
     // printf(" %d \n", e->kind);
+}
+
+void expr_resolve(struct expr* e) {
+    if (!e) return;
+    if (e->kind == EXPR_NAME) {
+        e->symbol = scope_lookup(e->name);
+    } else {
+        expr_resolve(e->left);
+        expr_resolve(e->right);
+    }
 }

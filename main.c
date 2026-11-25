@@ -2,25 +2,27 @@
 #include <string.h>
 #include <unistd.h>
 #include "decl.h"
+#include "stack.h"
+#include "symbol.h"
 
 #include "parser.out.h"
 
-extern FILE *yyin;
-extern char *yytext;
+extern FILE* yyin;
+extern char* yytext;
 extern int yylineno;
 int yylex(void);
-extern const char *const token_names[];
+extern const char* const token_names[];
 void print_scan_error(void);
 struct decl* parser_result = NULL;
 
 int main(int argc, char* argv[]) {
     if (argc < 3) {
         fprintf(stderr,
-            "Usage:\n"
+                "Usage:\n"
                 "\t%s --scan BMINOR_SOURCE_FILE\n"
                 "\t%s --parse BMINOR_SOURCE_FILE\n"
-                "\t%s --print BMINOR_SOURCE_FILE\n"
-        , argv[0], argv[0], argv[0]);
+                "\t%s --print BMINOR_SOURCE_FILE\n",
+                argv[0], argv[0], argv[0]);
         return 1;
     }
 
@@ -28,7 +30,7 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "%s: unknown option '%s' (expected --scan or --parse or --print)\n", argv[0], argv[1]);
         return 1;
     }
-    #define file_name argv[2]
+#define file_name argv[2]
 
     yyin = fopen(file_name, "r");
     if (yyin == NULL) {
